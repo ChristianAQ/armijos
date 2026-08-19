@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Herramienta de un solo negocio, una única cuenta de usuario (sin registro
+// público — la cuenta se crea a mano en la consola de Firebase). No hay
+// lógica multiusuario: basta con exigir autenticación en cada colección.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
