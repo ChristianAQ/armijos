@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
-import { drawHeader, drawFooter, drawSectionBar, drawParagraph, wrapText, formatDateEs } from "./layout";
+import { drawHeader, drawFooter, drawSectionBar, drawContentBox, drawDivider, formatDateEs } from "./layout";
 import type { AvisoData } from "../types";
 
 function buildBodyText(data: AvisoData): string {
@@ -27,7 +27,8 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
   let y = drawHeader(page, fonts, []);
   const contentWidth = PAGE.width - PAGE.margin * 2;
 
-  y -= 20;
+  y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
+  y -= 6;
   const title = "AVISO DE MANTENIMIENTO";
   const titleSize = 24;
   const tw = fonts.bold.widthOfTextAtSize(title, titleSize);
@@ -50,27 +51,7 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
   y -= 36;
 
   y = drawSectionBar(page, { x: PAGE.margin, y, width: contentWidth, text: "DETALLES DE VENTANA DE MANTENIMIENTO", fonts, size: 11.5 });
-
-  const bodyText = buildBodyText(data);
-  const padding = 14;
-  const lines = wrapText(fonts.regular, 10.5, bodyText, contentWidth - padding * 2);
-  const boxHeight = lines.length * 16 + padding * 2;
-  page.drawRectangle({
-    x: PAGE.margin,
-    y: y - boxHeight,
-    width: contentWidth,
-    height: boxHeight,
-    borderColor: COLORS.borderGray,
-    borderWidth: 1,
-  });
-  drawParagraph(page, fonts, {
-    x: PAGE.margin + padding,
-    y: y - padding - 9,
-    width: contentWidth - padding * 2,
-    text: bodyText,
-    size: 10.5,
-    lineHeight: 16,
-  });
+  drawContentBox(page, fonts, { x: PAGE.margin, y, width: contentWidth, text: buildBodyText(data), size: 10.5, lineHeight: 16 });
 
   drawFooter(page, fonts);
 

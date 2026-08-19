@@ -28,27 +28,27 @@ interface Props {
 const WORK_DESCRIPTION_PRESETS = [
   {
     label: "Desbroce",
-    text: "Desbroce de vegetación espontánea, malas hierbas y matorrales en el terreno. El servicio incluye el segado, la limpieza integral y su posterior gestión y transporte a un punto limpio autorizado, dejando la superficie completamente limpia y despejada.",
+    text: "Desbroce de vegetación espontánea, malas hierbas y matorrales en la totalidad del terreno mediante desbrozadora profesional. El servicio incluye el segado a ras de suelo, la retirada de los restos vegetales de mayor porte y su posterior gestión y transporte a un punto limpio autorizado, dejando la superficie completamente limpia, despejada y en condiciones óptimas.",
   },
   {
     label: "Mantenimiento y riego",
-    text: "Mantenimiento y conservación de zonas ajardinadas: siega de césped, poda de setos y arbustos, eliminación de malas hierbas y riego de las zonas verdes.",
+    text: "Mantenimiento integral de zonas ajardinadas: siega periódica de césped, poda de formación de setos y arbustos, escarda y eliminación de malas hierbas, y revisión y ajuste del sistema de riego. El servicio se presta con la periodicidad acordada, garantizando en todo momento un aspecto cuidado y saludable de las zonas verdes.",
   },
   {
     label: "Poda",
-    text: "Poda de árboles y arbustos, incluyendo la retirada y el transporte de los restos vegetales a un punto limpio autorizado.",
+    text: "Poda de formación, mantenimiento y saneamiento de árboles y arbustos, eliminando ramas secas, dañadas o mal orientadas para favorecer su desarrollo, floración y seguridad. Incluye la trituración de los restos, la limpieza de la zona de trabajo y el transporte de los residuos a un punto limpio autorizado.",
   },
   {
     label: "Diseño y plantación",
-    text: "Diseño y plantación de nuevas zonas ajardinadas, incluyendo preparación del terreno, aporte de tierra vegetal y plantación de las especies seleccionadas.",
+    text: "Diseño y creación de nuevas zonas ajardinadas: preparación y nivelación del terreno, aporte de tierra vegetal y sustrato adecuado, y plantación de las especies seleccionadas (césped, arbustos, plantas de temporada o árboles). Incluye el primer riego de arraigo y recomendaciones de mantenimiento posterior.",
   },
   {
     label: "Riego automático",
-    text: "Instalación y mantenimiento de sistema de riego automático, incluyendo revisión de aspersores, programador y conducciones.",
+    text: "Instalación, revisión o reparación de sistema de riego automático: programador, electroválvulas, tubería, aspersores y difusores. Incluye la sectorización según las necesidades hídricas de cada zona, la programación de los tiempos de riego y la comprobación final del correcto funcionamiento de toda la instalación.",
   },
   {
     label: "Limpieza general",
-    text: "Limpieza y mantenimiento integral de zonas comunes ajardinadas, incluyendo recogida de hojas y residuos vegetales.",
+    text: "Limpieza y mantenimiento integral de zonas comunes ajardinadas: recogida de hojas, ramas y residuos vegetales, barrido de caminos y superficies pavimentadas, y retirada de los restos a un punto limpio autorizado, dejando las instalaciones en perfecto estado de uso.",
   },
 ];
 

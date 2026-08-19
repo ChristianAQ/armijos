@@ -96,6 +96,25 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
   return top - H - 14;
 }
 
+/** Línea fina horizontal, usada para separar el bloque del emisor del resto
+ * del documento y darle una estructura más clara. */
+export function drawDivider(page: PDFPage, opts: { x: number; y: number; width: number }): number {
+  page.drawLine({
+    start: { x: opts.x, y: opts.y },
+    end: { x: opts.x + opts.width, y: opts.y },
+    thickness: 1,
+    color: COLORS.borderGray,
+  });
+  return opts.y - 16;
+}
+
+/** Mini-titular de sección (p.ej. "DATOS DEL CLIENTE") en versalitas de
+ * marca, para separar visualmente los bloques del documento. */
+export function drawMiniHeading(page: PDFPage, fonts: Fonts, opts: { x: number; y: number; text: string }): number {
+  page.drawText(opts.text, { x: opts.x, y: opts.y, size: 9.5, font: fonts.bold, color: COLORS.deepGreen });
+  return opts.y - 16;
+}
+
 export function drawFooter(page: PDFPage, fonts: Fonts) {
   const W = PAGE.width;
   const Hf = FOOTER_WEDGE_HEIGHT;
@@ -142,6 +161,7 @@ export function drawFieldRow(page: PDFPage, opts: FieldRowOptions): number {
     y: y - boxHeight,
     width: boxWidth,
     height: boxHeight,
+    color: COLORS.lightGray,
     borderColor: COLORS.borderGray,
     borderWidth: 1,
   });
@@ -220,7 +240,7 @@ export function drawTable(
   }
   y -= headerHeight;
 
-  for (const row of rows) {
+  rows.forEach((row, rowIndex) => {
     // Cada celda puede envolver en varias líneas (descripciones largas); la
     // altura de la fila se ajusta a la celda con más líneas.
     const cellLines = columns.map((col, i) => wrapText(fonts.regular, cellSize, row[i] ?? "", col.width - 16));
@@ -231,6 +251,9 @@ export function drawTable(
       y: y - rowHeight,
       width: totalWidth,
       height: rowHeight,
+      // Filas alternas con un tinte muy sutil, para que la tabla se lea con
+      // más facilidad cuando hay varias líneas (estilo factura profesional).
+      color: rowIndex % 2 === 1 ? COLORS.lightGray : undefined,
       borderColor: COLORS.borderGray,
       borderWidth: 1,
     });
@@ -259,7 +282,7 @@ export function drawTable(
     }
     page.drawLine({ start: { x: cx, y }, end: { x: cx, y: y - rowHeight }, thickness: 1, color: COLORS.borderGray });
     y -= rowHeight;
-  }
+  });
 
   return y;
 }
@@ -395,4 +418,40 @@ export function drawParagraph(
     y -= lh;
   }
   return y;
+}
+
+/** Caja con fondo sutil y borde para bloques de texto libre (descripción del
+ * trabajo, detalles de un aviso...) — le da al párrafo el mismo tratamiento
+ * "de documento" que el resto de bloques en vez de texto suelto. Devuelve la
+ * Y final. */
+export function drawContentBox(
+  page: PDFPage,
+  fonts: Fonts,
+  opts: { x: number; y: number; width: number; text: string; size?: number; lineHeight?: number; padding?: number }
+): number {
+  const size = opts.size ?? 10.5;
+  const lineHeight = opts.lineHeight ?? 16;
+  const padding = opts.padding ?? 14;
+  const innerWidth = opts.width - padding * 2;
+  const lines = wrapText(fonts.regular, size, opts.text, innerWidth);
+  const boxHeight = Math.max(lineHeight, lines.length * lineHeight) + padding * 2 - (lineHeight - size);
+
+  page.drawRectangle({
+    x: opts.x,
+    y: opts.y - boxHeight,
+    width: opts.width,
+    height: boxHeight,
+    color: COLORS.lightGray,
+    borderColor: COLORS.borderGray,
+    borderWidth: 1,
+  });
+  drawParagraph(page, fonts, {
+    x: opts.x + padding,
+    y: opts.y - padding - size + 2,
+    width: innerWidth,
+    text: opts.text,
+    size,
+    lineHeight,
+  });
+  return opts.y - boxHeight;
 }

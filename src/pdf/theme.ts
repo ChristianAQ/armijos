@@ -11,6 +11,7 @@ export const COLORS = {
   black: rgb(0, 0, 0),
   gray: rgb(0.45, 0.45, 0.45),
   borderGray: rgb(0.75, 0.75, 0.75),
+  lightGray: rgb(0.96, 0.967, 0.963), // relleno sutil de cajas y filas alternas
 };
 
 export const PAGE = {

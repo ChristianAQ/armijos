@@ -8,7 +8,10 @@ import {
   drawTotals,
   drawPaymentMethod,
   drawSignatureTable,
-  drawParagraph,
+  drawSectionBar,
+  drawContentBox,
+  drawDivider,
+  drawMiniHeading,
   formatEUR,
   formatDateEs,
 } from "./layout";
@@ -26,29 +29,28 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   };
 
   let y = drawHeader(page, fonts, ["PRESUPUESTO"]);
+  const contentWidth = PAGE.width - PAGE.margin * 2;
+  y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
 
   const fechaLabel = `Fecha  ${formatDateEs(data.date)}`;
   const fw = fonts.bold.widthOfTextAtSize(fechaLabel, 11);
   page.drawText(fechaLabel, { x: PAGE.width - PAGE.margin - fw, y, size: 11, font: fonts.bold, color: COLORS.black });
-  y -= 24;
+  y -= 26;
 
-  const fieldBoxWidth = PAGE.width - PAGE.margin * 2 - 90;
+  y = drawMiniHeading(page, fonts, { x: PAGE.margin, y, text: "DATOS DEL CLIENTE" });
+  const fieldBoxWidth = contentWidth - 90;
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "Cliente:", value: data.clientSnapshot.name, boxWidth: fieldBoxWidth, fonts });
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "C.I.F :", value: data.clientSnapshot.cif, boxWidth: fieldBoxWidth, fonts });
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "Dirección:", value: data.clientSnapshot.address, boxWidth: fieldBoxWidth, fonts });
   y -= 16;
 
   if (data.workDescription.trim()) {
-    const title = "DESCRIPCIÓN DEL TRABAJO A REALIZAR";
-    const tw = fonts.bold.widthOfTextAtSize(title, 11);
-    page.drawText(title, { x: PAGE.margin + (PAGE.width - PAGE.margin * 2 - tw) / 2, y, size: 11, font: fonts.bold, color: COLORS.navy });
-    y -= 20;
-    y = drawParagraph(page, fonts, { x: PAGE.margin, y, width: PAGE.width - PAGE.margin * 2, text: data.workDescription });
-    y -= 10;
+    y = drawSectionBar(page, { x: PAGE.margin, y, width: contentWidth, text: "DESCRIPCIÓN DEL TRABAJO A REALIZAR", fonts, size: 10.5 });
+    y = drawContentBox(page, fonts, { x: PAGE.margin, y, width: contentWidth, text: data.workDescription, size: 10.5, lineHeight: 15 });
+    y -= 16;
   }
 
-  const tableWidth = PAGE.width - PAGE.margin * 2;
-  const descW = tableWidth - 90 - 70 - 90;
+  const descW = contentWidth - 90 - 70 - 90;
   const rows = data.items.map((it) => [
     it.description,
     formatEUR(it.unitPrice),
@@ -95,7 +97,7 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   });
 
   y = Math.min(totalsBottomY, paymentBottomY) - 20;
-  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: tableWidth });
+  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: contentWidth });
 
   y -= 22;
   const terms = BUSINESS.termsText.split("\n");

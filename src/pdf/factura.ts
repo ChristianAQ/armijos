@@ -8,6 +8,8 @@ import {
   drawTotals,
   drawPaymentMethod,
   drawSignatureTable,
+  drawDivider,
+  drawMiniHeading,
   formatEUR,
   formatDateEs,
 } from "./layout";
@@ -25,20 +27,22 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
   };
 
   let y = drawHeader(page, fonts, ["FACTURA", data.number]);
+  const contentWidth = PAGE.width - PAGE.margin * 2;
+  y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
 
   const fechaLabel = `Fecha  ${formatDateEs(data.date)}`;
   const fw = fonts.bold.widthOfTextAtSize(fechaLabel, 11);
   page.drawText(fechaLabel, { x: PAGE.width - PAGE.margin - fw, y, size: 11, font: fonts.bold, color: COLORS.black });
-  y -= 24;
+  y -= 26;
 
+  y = drawMiniHeading(page, fonts, { x: PAGE.margin, y, text: "DATOS DEL CLIENTE" });
   const fieldBoxWidth = PAGE.width - PAGE.margin * 2 - 90;
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "Cliente:", value: data.clientSnapshot.name, boxWidth: fieldBoxWidth, fonts });
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "C.I.F :", value: data.clientSnapshot.cif, boxWidth: fieldBoxWidth, fonts });
   y = drawFieldRow(page, { x: PAGE.margin, y, label: "Dirección:", value: data.clientSnapshot.address, boxWidth: fieldBoxWidth, fonts });
   y -= 14;
 
-  const tableWidth = PAGE.width - PAGE.margin * 2;
-  const descW = tableWidth - 90 - 70 - 90;
+  const descW = contentWidth - 90 - 70 - 90;
   const rows = data.items.map((it) => [
     it.description,
     formatEUR(it.unitPrice),
@@ -80,7 +84,7 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
   });
 
   y = Math.min(totalsBottomY, paymentBottomY) - 20;
-  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: tableWidth });
+  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: contentWidth });
 
   y -= 22;
   const terms = BUSINESS.termsText.split("\n");
