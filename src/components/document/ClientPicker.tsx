@@ -27,7 +27,6 @@ export function ClientPicker({ clients, value, onChange }: Props) {
           onChange={(e) => handleNameChange(e.target.value)}
           placeholder="Nombre del cliente"
           autoComplete="off"
-          required
         />
         <datalist id="clients-datalist">
           {clients.map((c) => (

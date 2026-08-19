@@ -25,6 +25,33 @@ interface Props {
   defaultBankAccount: string;
 }
 
+const WORK_DESCRIPTION_PRESETS = [
+  {
+    label: "Desbroce",
+    text: "Desbroce de vegetación espontánea, malas hierbas y matorrales en el terreno. El servicio incluye el segado, la limpieza integral y su posterior gestión y transporte a un punto limpio autorizado, dejando la superficie completamente limpia y despejada.",
+  },
+  {
+    label: "Mantenimiento y riego",
+    text: "Mantenimiento y conservación de zonas ajardinadas: siega de césped, poda de setos y arbustos, eliminación de malas hierbas y riego de las zonas verdes.",
+  },
+  {
+    label: "Poda",
+    text: "Poda de árboles y arbustos, incluyendo la retirada y el transporte de los restos vegetales a un punto limpio autorizado.",
+  },
+  {
+    label: "Diseño y plantación",
+    text: "Diseño y plantación de nuevas zonas ajardinadas, incluyendo preparación del terreno, aporte de tierra vegetal y plantación de las especies seleccionadas.",
+  },
+  {
+    label: "Riego automático",
+    text: "Instalación y mantenimiento de sistema de riego automático, incluyendo revisión de aspersores, programador y conducciones.",
+  },
+  {
+    label: "Limpieza general",
+    text: "Limpieza y mantenimiento integral de zonas comunes ajardinadas, incluyendo recogida de hojas y residuos vegetales.",
+  },
+];
+
 export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props) {
   const navigate = useNavigate();
   const { show } = useToast();
@@ -40,26 +67,28 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
   const [bankAccount, setBankAccount] = useState(defaultBankAccount);
   const [submitting, setSubmitting] = useState(false);
 
-  const validItems = items.filter((it) => it.description.trim() && it.unitPrice > 0);
-  const totals = computeTotals(validItems.length ? validItems : items, applyIva);
-  const canSubmit = client.name.trim().length > 0 && validItems.length > 0 && (type !== "factura" || number.trim().length > 0);
+  const totals = computeTotals(items, applyIva);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
     setSubmitting(true);
     try {
-      const clientId = await upsertClient(client, clients);
-      setClients((prev) => {
-        const exists = prev.some((c) => c.id === clientId);
-        return exists ? prev : [...prev, { id: clientId, ...client, createdAt: Date.now(), updatedAt: Date.now() }];
-      });
+      // Ningún campo es obligatorio: un cliente sin nombre no se guarda en
+      // la lista de clientes (para no dejar fichas vacías), pero el PDF se
+      // genera igual con lo que haya.
+      const clientId = client.name.trim() ? await upsertClient(client, clients) : null;
+      if (clientId) {
+        setClients((prev) => {
+          const exists = prev.some((c) => c.id === clientId);
+          return exists ? prev : [...prev, { id: clientId, ...client, createdAt: Date.now(), updatedAt: Date.now() }];
+        });
+      }
 
       const base = {
         date,
         clientId,
         clientSnapshot: client,
-        items: validItems,
+        items,
         applyIva,
         paymentMethod,
         bankAccount: paymentMethod === "transferencia" ? bankAccount : "",
@@ -68,15 +97,16 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
       let bytes: Uint8Array;
       let filename: string;
       let data: FacturaData | PresupuestoData;
+      const clientLabel = client.name.trim() || "cliente";
 
       if (type === "factura") {
         data = { type: "factura", number: number.trim(), ...base };
+        filename = `Factura ${data.number || "sin numero"} - ${clientLabel}.pdf`;
         bytes = await buildFacturaPdf(data);
-        filename = `Factura ${data.number} - ${client.name}.pdf`;
       } else {
         data = { type: "presupuesto", workDescription, ...base };
+        filename = `Presupuesto - ${clientLabel}.pdf`;
         bytes = await buildPresupuestoPdf(data);
-        filename = `Presupuesto - ${client.name}.pdf`;
       }
 
       await saveDocument(data);
@@ -92,21 +122,37 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="flex gap-3">
         {type === "factura" && (
-          <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} className="w-28" required />
+          <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} className="w-28" />
         )}
-        <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="flex-1" required />
+        <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="flex-1" />
       </div>
 
       <ClientPicker clients={clients} value={client} onChange={setClient} />
 
       {type === "presupuesto" && (
-        <Textarea
-          label="Descripción del trabajo a realizar"
-          value={workDescription}
-          onChange={(e) => setWorkDescription(e.target.value)}
-          placeholder="Ej. Desbroce de vegetación espontánea, malas hierbas y matorrales..."
-          rows={3}
-        />
+        <div>
+          <span className="mb-2 block text-sm font-medium text-neutral-700">Descripción del trabajo a realizar</span>
+          <div className="mb-2 flex flex-wrap gap-2">
+            {WORK_DESCRIPTION_PRESETS.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => setWorkDescription(preset.text)}
+                className={`rounded-full border px-3 py-1.5 text-sm ${
+                  workDescription === preset.text ? "border-brand-dark bg-brand-dark text-white" : "border-neutral-300 text-neutral-700"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <Textarea
+            value={workDescription}
+            onChange={(e) => setWorkDescription(e.target.value)}
+            placeholder="Elige una opción arriba o escribe tu propia descripción..."
+            rows={3}
+          />
+        </div>
       )}
 
       <div>
@@ -142,7 +188,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
         <Input label="Número de cuenta" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="ES00 0000 0000 0000 0000 0000" />
       )}
 
-      <Button type="submit" size="lg" loading={submitting} disabled={!canSubmit}>
+      <Button type="submit" size="lg" loading={submitting}>
         Generar PDF
       </Button>
     </form>

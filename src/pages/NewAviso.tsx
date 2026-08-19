@@ -38,17 +38,14 @@ export function NewAviso() {
     return Array.from(new Set(zones));
   }, [documents]);
 
-  const canSubmit = zone.trim().length > 0 && reason.trim().length > 0 && timeFrom && timeTo;
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
     setSubmitting(true);
     try {
       const data: AvisoData = { type: "aviso", date, zone: zone.trim(), timeFrom, timeTo, reason: reason.trim(), extraNote };
       const bytes = await buildAvisoPdf(data);
       await saveDocument(data);
-      const filename = `Aviso de mantenimiento - ${zone}.pdf`;
+      const filename = `Aviso de mantenimiento - ${zone.trim() || "sin zona"}.pdf`;
       navigate("/documento-listo", { state: { bytes, filename } });
     } catch (err) {
       show(friendlyError(err), "error");
@@ -70,7 +67,6 @@ export function NewAviso() {
               onChange={(e) => setZone(e.target.value)}
               placeholder="la cancha de tenis"
               hint='Escríbelo con el artículo, ej. "la piscina", "el gimnasio"'
-              required
             />
             <datalist id="zones-datalist">
               {previousZones.map((z) => (
@@ -79,11 +75,11 @@ export function NewAviso() {
             </datalist>
           </div>
 
-          <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+          <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
           <div className="flex gap-3">
-            <Input label="Desde" type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} className="flex-1" required />
-            <Input label="Hasta" type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} className="flex-1" required />
+            <Input label="Desde" type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} className="flex-1" />
+            <Input label="Hasta" type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} className="flex-1" />
           </div>
 
           <div>
@@ -102,7 +98,7 @@ export function NewAviso() {
                 </button>
               ))}
             </div>
-            <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Motivo del trabajo" required />
+            <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Motivo del trabajo" />
           </div>
 
           <Textarea
@@ -112,7 +108,7 @@ export function NewAviso() {
             placeholder="Cualquier detalle extra para el aviso"
           />
 
-          <Button type="submit" size="lg" loading={submitting} disabled={!canSubmit}>
+          <Button type="submit" size="lg" loading={submitting}>
             Generar PDF
           </Button>
         </form>
