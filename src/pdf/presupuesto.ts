@@ -2,7 +2,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
 import {
   drawHeader,
-  drawFieldRow,
+  drawTwoColumnFields,
   drawTable,
   drawTotals,
   drawPaymentMethod,
@@ -10,7 +10,6 @@ import {
   drawSectionBar,
   drawContentBox,
   drawDivider,
-  drawMiniHeading,
   formatEUR,
   formatDateEs,
 } from "./layout";
@@ -38,11 +37,24 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   page.drawText(fechaLabel, { x: PAGE.width - PAGE.margin - fw, y, size: 11, font: fonts.bold, color: COLORS.black });
   y -= 26;
 
-  y = drawMiniHeading(page, fonts, { x: PAGE.margin, y, text: "DATOS DEL CLIENTE" });
-  const fieldBoxWidth = contentWidth - 90;
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Cliente:", value: data.clientSnapshot.name, boxWidth: fieldBoxWidth, fonts });
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "C.I.F :", value: data.clientSnapshot.cif, boxWidth: fieldBoxWidth, fonts });
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Dirección:", value: data.clientSnapshot.address, boxWidth: fieldBoxWidth, fonts });
+  y = drawTwoColumnFields(page, {
+    x: PAGE.margin,
+    y,
+    width: contentWidth,
+    leftHeading: "DATOS DE LA EMPRESA",
+    leftRows: [
+      { label: "Empresa:", value: BUSINESS.name },
+      { label: "DNI :", value: BUSINESS.dni },
+      { label: "Dirección:", value: BUSINESS.addressLines.join(" ").replace(/,$/, "") },
+    ],
+    rightHeading: "DATOS DEL CLIENTE",
+    rightRows: [
+      { label: "Cliente:", value: data.clientSnapshot.name },
+      { label: "C.I.F :", value: data.clientSnapshot.cif },
+      { label: "Dirección:", value: data.clientSnapshot.address },
+    ],
+    fonts,
+  });
   y -= 16;
 
   if (data.workDescription.trim()) {

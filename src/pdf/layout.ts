@@ -56,13 +56,12 @@ export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, lab
   const H = HEADER_HEIGHT;
   const top = PAGE.height;
 
-  // Cuña de color más pequeña que antes, para que no domine la cabecera.
-  page.drawSvgPath(`M${W - 140},0 L${W},0 L${W},${H} L${W - 190},${H} Z`, {
+  page.drawSvgPath(`M${W - 190},0 L${W},0 L${W},${H} L${W - 260},${H} Z`, {
     x: 0,
     y: top,
     color: COLORS.darkGreen,
   });
-  page.drawSvgPath(`M${W - 164},0 L${W - 150},0 L${W - 214},${H} L${W - 228},${H} Z`, {
+  page.drawSvgPath(`M${W - 214},0 L${W - 198},0 L${W - 268},${H} L${W - 284},${H} Z`, {
     x: 0,
     y: top,
     color: COLORS.green,
@@ -155,11 +154,16 @@ interface FieldRowOptions {
 }
 
 /** Etiqueta en negrita + caja con borde a la derecha (estilo "Cliente:" del
- * original). Devuelve la Y para la siguiente fila. */
+ * original). El valor envuelve en varias líneas si no cabe (p.ej. una
+ * dirección larga en una columna estrecha), creciendo la caja en alto.
+ * Devuelve la Y para la siguiente fila. */
 export function drawFieldRow(page: PDFPage, opts: FieldRowOptions): number {
   const { x, y, label, value, boxWidth, fonts } = opts;
   const labelWidth = opts.labelWidth ?? 90;
-  const boxHeight = opts.boxHeight ?? 20;
+  const valueSize = 10.5;
+  const lineHeight = 13;
+  const lines = wrapText(fonts.regular, valueSize, value, boxWidth - 16);
+  const boxHeight = opts.boxHeight ?? Math.max(20, lines.length * lineHeight + 7);
 
   page.drawText(label, { x, y: y - boxHeight / 2 - 3, size: 10.5, font: fonts.bold, color: COLORS.black });
   const boxX = x + labelWidth;
@@ -172,14 +176,48 @@ export function drawFieldRow(page: PDFPage, opts: FieldRowOptions): number {
     borderColor: COLORS.borderGray,
     borderWidth: 1,
   });
-  page.drawText(value, {
-    x: boxX + 8,
-    y: y - boxHeight / 2 - 3,
-    size: 10.5,
-    font: fonts.regular,
-    color: COLORS.black,
-  });
+  let ly = y - boxHeight / 2 - 3 + ((lines.length - 1) * lineHeight) / 2;
+  for (const line of lines) {
+    page.drawText(line, { x: boxX + 8, y: ly, size: valueSize, font: fonts.regular, color: COLORS.black });
+    ly -= lineHeight;
+  }
   return y - boxHeight - 10;
+}
+
+interface TwoColumnFieldsOptions {
+  x: number;
+  y: number;
+  width: number;
+  gap?: number;
+  labelWidth?: number;
+  leftHeading: string;
+  leftRows: { label: string; value: string }[];
+  rightHeading: string;
+  rightRows: { label: string; value: string }[];
+  fonts: Fonts;
+}
+
+/** Dos mini-tablas de campos en paralelo (p.ej. "DATOS DE LA EMPRESA" junto a
+ * "DATOS DEL CLIENTE"), cada una con su propio titular y filas de
+ * etiqueta+valor. Devuelve la Y más baja de las dos columnas. */
+export function drawTwoColumnFields(page: PDFPage, opts: TwoColumnFieldsOptions): number {
+  const gap = opts.gap ?? 20;
+  const colWidth = (opts.width - gap) / 2;
+  const labelWidth = opts.labelWidth ?? 55;
+  const boxWidth = colWidth - labelWidth;
+
+  let leftY = drawMiniHeading(page, opts.fonts, { x: opts.x, y: opts.y, text: opts.leftHeading });
+  for (const row of opts.leftRows) {
+    leftY = drawFieldRow(page, { x: opts.x, y: leftY, label: row.label, value: row.value, boxWidth, labelWidth, fonts: opts.fonts });
+  }
+
+  const rightX = opts.x + colWidth + gap;
+  let rightY = drawMiniHeading(page, opts.fonts, { x: rightX, y: opts.y, text: opts.rightHeading });
+  for (const row of opts.rightRows) {
+    rightY = drawFieldRow(page, { x: rightX, y: rightY, label: row.label, value: row.value, boxWidth, labelWidth, fonts: opts.fonts });
+  }
+
+  return Math.min(leftY, rightY);
 }
 
 interface SectionBarOptions {
