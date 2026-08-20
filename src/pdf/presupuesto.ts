@@ -7,7 +7,7 @@ import {
   drawTable,
   drawTotals,
   drawPaymentMethod,
-  drawSignatureTable,
+  drawObservations,
   drawSectionBar,
   drawContentBox,
   drawDivider,
@@ -15,6 +15,7 @@ import {
   formatEUR,
   formatDateEs,
 } from "./layout";
+import { embedLogo } from "./logo";
 import { BUSINESS } from "../config/business";
 import { computeTotals } from "../lib/totals";
 import type { PresupuestoData } from "../types";
@@ -97,7 +98,7 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   });
 
   y = Math.min(totalsBottomY, paymentBottomY) - 20;
-  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: contentWidth });
+  y = drawObservations(page, fonts, { x: PAGE.margin, y, width: contentWidth });
 
   y -= 22;
   const terms = BUSINESS.termsText.split("\n");
@@ -106,7 +107,7 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
     y -= 11;
   }
 
-  drawFooter(page, fonts);
+  drawFooter(page, await embedLogo(pdfDoc));
 
   return pdfDoc.save();
 }

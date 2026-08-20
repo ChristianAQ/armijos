@@ -7,12 +7,13 @@ import {
   drawTable,
   drawTotals,
   drawPaymentMethod,
-  drawSignatureTable,
+  drawObservations,
   drawDivider,
   drawMiniHeading,
   formatEUR,
   formatDateEs,
 } from "./layout";
+import { embedLogo } from "./logo";
 import { BUSINESS } from "../config/business";
 import { computeTotals } from "../lib/totals";
 import type { FacturaData } from "../types";
@@ -84,7 +85,7 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
   });
 
   y = Math.min(totalsBottomY, paymentBottomY) - 20;
-  y = drawSignatureTable(page, fonts, { x: PAGE.margin, y, width: contentWidth });
+  y = drawObservations(page, fonts, { x: PAGE.margin, y, width: contentWidth });
 
   y -= 22;
   const terms = BUSINESS.termsText.split("\n");
@@ -93,7 +94,7 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     y -= 11;
   }
 
-  drawFooter(page, fonts);
+  drawFooter(page, await embedLogo(pdfDoc));
 
   return pdfDoc.save();
 }

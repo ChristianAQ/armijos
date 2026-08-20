@@ -214,7 +214,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
         <option value="transferencia">Transferencia</option>
         <option value="efectivo">Efectivo</option>
         <option value="cheque">Cheque</option>
-        <option value="tarjeta">Tarjeta</option>
+        <option value="tarjeta">Otro</option>
       </Select>
 
       {paymentMethod === "transferencia" && (

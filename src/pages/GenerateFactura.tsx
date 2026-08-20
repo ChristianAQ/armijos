@@ -20,7 +20,7 @@ import type { FacturaData, FacturaTemplate } from "../types";
 const PAYMENT_LABELS: Record<string, string> = {
   efectivo: "Efectivo",
   cheque: "Cheque",
-  tarjeta: "Tarjeta",
+  tarjeta: "Otro",
   transferencia: "Transferencia",
 };
 

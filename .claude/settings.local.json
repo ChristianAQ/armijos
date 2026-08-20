@@ -9,7 +9,8 @@
       "Bash(timeout 60 bash -c 'until curl -sf http://127.0.0.1:9099 >/dev/null 2>&1; do sleep 1; done')",
       "Bash(curl -s http://127.0.0.1:8080)",
       "Bash(cat /tmp_firebase_emulators.log)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node render.mjs)"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import type { PDFFont, PDFPage } from "pdf-lib";
+import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
 import { drawLogo } from "./logo";
 import { BUSINESS } from "../config/business";
@@ -74,7 +74,7 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
   // Bloque de datos del emisor, a la izquierda de la cuña: nombre del
   // negocio, luego titular+DNI, contacto y dirección agrupados en una línea
   // cada uno, con más aire entre bloques para una lectura más profesional.
-  let y = top - 26;
+  let y = top - 34;
   page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 15, font: fonts.bold, color: COLORS.black });
   y -= 20;
 
@@ -126,7 +126,7 @@ export function drawMiniHeading(page: PDFPage, fonts: Fonts, opts: { x: number; 
   return opts.y - 16;
 }
 
-export function drawFooter(page: PDFPage, fonts: Fonts) {
+export function drawFooter(page: PDFPage, logoImage: PDFImage) {
   const W = PAGE.width;
   const Hf = FOOTER_WEDGE_HEIGHT;
   const barTop = FOOTER_BAR_HEIGHT;
@@ -144,7 +144,7 @@ export function drawFooter(page: PDFPage, fonts: Fonts) {
     color: COLORS.green,
   });
 
-  drawLogo(page, fonts.bold, 26, barTop + 18);
+  drawLogo(page, logoImage, 24, 26);
 }
 
 interface FieldRowOptions {
@@ -347,11 +347,11 @@ export function drawTotals(
 const PAYMENT_LABELS: Record<string, string> = {
   efectivo: "Efectivo",
   cheque: "Cheque",
-  tarjeta: "Tarjeta",
+  tarjeta: "Otro",
   transferencia: "Transferencia",
 };
 
-/** "FORMA DE PAGO:" + casillas Efectivo/Cheque/Tarjeta/Transferencia, con la
+/** "FORMA DE PAGO:" + casillas Efectivo/Cheque/Otro/Transferencia, con la
  * seleccionada marcada, y el número de cuenta si aplica. Devuelve la Y final. */
 export function drawPaymentMethod(
   page: PDFPage,
@@ -389,29 +389,12 @@ export function drawPaymentMethod(
   return y - 30;
 }
 
-/** Tabla RESPONSABLE / CLIENTE con casillas de firma en blanco. Devuelve la Y final. */
-export function drawSignatureTable(page: PDFPage, fonts: Fonts, opts: { x: number; y: number; width: number }): number {
-  const half = opts.width / 2;
-  const headerH = 22;
-  const boxH = 55;
-  let y = opts.y;
-
-  page.drawRectangle({ x: opts.x, y: y - headerH, width: half, height: headerH, color: COLORS.darkGreen });
-  page.drawRectangle({ x: opts.x + half, y: y - headerH, width: half, height: headerH, color: COLORS.darkGreen });
-  for (const [label, offset] of [["RESPONSABLE", 0], ["CLIENTE", half]] as [string, number][]) {
-    const size = 10.5;
-    const tw = fonts.bold.widthOfTextAtSize(label, size);
-    page.drawText(label, {
-      x: opts.x + offset + (half - tw) / 2,
-      y: y - headerH / 2 - size / 2 + 1,
-      size,
-      font: fonts.bold,
-      color: COLORS.white,
-    });
-  }
-  y -= headerH;
+/** Barra "OBSERVACIONES" + caja en blanco debajo para anotaciones a mano.
+ * Devuelve la Y final. */
+export function drawObservations(page: PDFPage, fonts: Fonts, opts: { x: number; y: number; width: number; height?: number }): number {
+  const boxH = opts.height ?? 55;
+  const y = drawSectionBar(page, { x: opts.x, y: opts.y, width: opts.width, text: "OBSERVACIONES", fonts, size: 10.5 });
   page.drawRectangle({ x: opts.x, y: y - boxH, width: opts.width, height: boxH, borderColor: COLORS.borderGray, borderWidth: 1 });
-  page.drawLine({ start: { x: opts.x + half, y }, end: { x: opts.x + half, y: y - boxH }, thickness: 1, color: COLORS.borderGray });
   return y - boxH;
 }
 
