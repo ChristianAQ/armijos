@@ -14,7 +14,9 @@ export async function embedLogo(pdfDoc: PDFDocument): Promise<PDFImage> {
   return pdfDoc.embedPng(base64ToBytes(LOGO_PNG_BASE64));
 }
 
-const LOGO_SIZE = 46;
+// La imagen incluye el nombre "ARMIJOS" bajo el icono, así que necesita más
+// tamaño que un icono suelto para que el texto siga siendo legible.
+const LOGO_SIZE = 64;
 
 export function drawLogo(page: PDFPage, image: PDFImage, x: number, y: number) {
   page.drawImage(image, { x, y, width: LOGO_SIZE, height: LOGO_SIZE });

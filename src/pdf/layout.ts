@@ -149,7 +149,7 @@ export function drawFooter(page: PDFPage, logoImage: PDFImage) {
     color: COLORS.green,
   });
 
-  drawLogo(page, logoImage, 24, 26);
+  drawLogo(page, logoImage, 20, 18);
 }
 
 interface FieldRowOptions {

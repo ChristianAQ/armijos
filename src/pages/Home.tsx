@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FileText, ClipboardList, TriangleAlert, Files, History, Settings, LogOut } from "lucide-react";
 import { logOut } from "../services/auth.service";
 import { PageContainer } from "../components/layout/PageContainer";
+import logoLockup from "../assets/logo-lockup.png";
 
 const FEATURED_ACTION = { to: "/plantillas", label: "Facturas de clientes recurrentes", icon: Files };
 
@@ -17,8 +18,8 @@ export function Home() {
       <PageContainer>
         <div className="mb-6 flex items-center justify-between pt-2">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900">Armijos</h1>
-            <p className="text-sm text-neutral-500">Jardinería y mantenimiento</p>
+            <img src={logoLockup} alt="Armijos" className="h-16 w-auto" />
+            <p className="mt-1 text-sm text-neutral-500">Jardinería y mantenimiento</p>
           </div>
           <button
             onClick={() => logOut()}
