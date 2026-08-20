@@ -48,9 +48,9 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     ],
     rightHeading: "DATOS DEL CLIENTE",
     rightLines: [
-      { text: data.clientSnapshot.name, bold: true, color: COLORS.black, size: 10.5 },
-      { text: `C.I.F ${data.clientSnapshot.cif}`, color: COLORS.gray },
-      { text: data.clientSnapshot.address, color: COLORS.gray },
+      { text: `Cliente: ${data.clientSnapshot.name}`, bold: true, color: COLORS.black, size: 10.5 },
+      { text: `C.I.F: ${data.clientSnapshot.cif}`, color: COLORS.gray },
+      { text: `Dirección: ${data.clientSnapshot.address}`, color: COLORS.gray },
     ],
     fonts,
   });

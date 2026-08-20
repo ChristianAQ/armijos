@@ -8,8 +8,9 @@ export interface Fonts {
 }
 
 const HEADER_HEIGHT = 200;
-const HEADER_HEIGHT_COMPACT = 148;
+const HEADER_HEIGHT_COMPACT = 70;
 const HEADER_LOGO_SIZE = 90;
+const HEADER_LOGO_SIZE_COMPACT = 46;
 
 export function formatEUR(n: number): string {
   return `${n.toFixed(2)} €`;
@@ -76,14 +77,19 @@ export function drawHeader(
 
   // Margen superior: el mismo que se usa a los lados del documento
   // (PAGE.margin), y un poco más, para que la cabecera no quede pegada al
-  // borde de la página.
-  const topMargin = PAGE.margin + 6;
+  // borde de la página. En modo compacto se reduce, porque el logo también
+  // es más pequeño.
+  const topMargin = opts.compact ? PAGE.margin / 4 : PAGE.margin + 6;
+  const logoSize = opts.compact ? HEADER_LOGO_SIZE_COMPACT : HEADER_LOGO_SIZE;
 
   if (labelLines.length) {
     // Centrada verticalmente en la cabecera (ahora más alta por el logo).
-    let ly = top - H / 2 + 10;
+    const firstSize = opts.compact ? 15 : 22;
+    const restSize = opts.compact ? 10 : 14;
+    const totalHeight = labelLines.reduce((s, _, i) => s + (i === 0 ? firstSize : restSize) + 4, -4);
+    let ly = top - (H - totalHeight) / 2 - firstSize;
     labelLines.forEach((line, i) => {
-      const size = i === 0 ? 22 : 14;
+      const size = i === 0 ? firstSize : restSize;
       const w = fonts.bold.widthOfTextAtSize(line, size);
       page.drawText(line, { x: W - PAGE.margin - w, y: ly, size, font: fonts.bold, color: COLORS.white });
       ly -= size + 4;
@@ -91,7 +97,7 @@ export function drawHeader(
   }
 
   // Logotipo (icono + "ARMIJOS").
-  page.drawImage(logoImage, { x: PAGE.margin, y: top - topMargin - HEADER_LOGO_SIZE, width: HEADER_LOGO_SIZE, height: HEADER_LOGO_SIZE });
+  page.drawImage(logoImage, { x: PAGE.margin, y: top - topMargin - logoSize, width: logoSize, height: logoSize });
 
   // En modo compacto los datos del emisor viven más abajo, en el bloque
   // "DATOS DE LA EMPRESA" (estilo elegante, sin caja); la cabecera se queda
