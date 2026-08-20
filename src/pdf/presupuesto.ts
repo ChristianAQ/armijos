@@ -43,13 +43,13 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
     width: contentWidth,
     leftHeading: "DATOS DE LA EMPRESA",
     leftLines: [
-      { text: `${BUSINESS.owner} · DNI ${BUSINESS.dni}`, bold: true, color: COLORS.black, size: 10.5 },
-      { text: `${BUSINESS.phone} · ${BUSINESS.email}`, bold: true, color: COLORS.navy },
+      { text: `${BUSINESS.owner} · DNI ${BUSINESS.dni}`, color: COLORS.black },
+      { text: `${BUSINESS.phone} · ${BUSINESS.email}`, color: COLORS.gray },
       { text: BUSINESS.addressLines.join(" ").replace(/,$/, ""), color: COLORS.gray },
     ],
     rightHeading: "DATOS DEL CLIENTE",
     rightLines: [
-      { text: `Cliente: ${data.clientSnapshot.name}`, bold: true, color: COLORS.black, size: 10.5 },
+      { text: `Cliente: ${data.clientSnapshot.name}`, color: COLORS.black },
       { text: `C.I.F: ${data.clientSnapshot.cif}`, color: COLORS.gray },
       { text: `Dirección: ${data.clientSnapshot.address}`, color: COLORS.gray },
     ],

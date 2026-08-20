@@ -10,7 +10,7 @@ export interface Fonts {
 const HEADER_HEIGHT = 200;
 const HEADER_HEIGHT_COMPACT = 70;
 const HEADER_LOGO_SIZE = 90;
-const HEADER_LOGO_SIZE_COMPACT = 46;
+const HEADER_LOGO_SIZE_COMPACT = 92;
 
 export function formatEUR(n: number): string {
   return `${n.toFixed(2)} €`;
@@ -76,10 +76,9 @@ export function drawHeader(
   });
 
   // Margen superior: el mismo que se usa a los lados del documento
-  // (PAGE.margin), y un poco más, para que la cabecera no quede pegada al
-  // borde de la página. En modo compacto se reduce, porque el logo también
-  // es más pequeño.
-  const topMargin = opts.compact ? PAGE.margin / 4 : PAGE.margin + 6;
+  // (PAGE.margin). En modo compacto el icono es más grande que la banda
+  // verde y sobresale por debajo de ella, como una insignia.
+  const topMargin = opts.compact ? PAGE.margin : PAGE.margin + 6;
   const logoSize = opts.compact ? HEADER_LOGO_SIZE_COMPACT : HEADER_LOGO_SIZE;
 
   if (labelLines.length) {
@@ -134,7 +133,10 @@ export function drawHeader(
     });
   }
 
-  return top - H - 14;
+  // El contenido libre empieza tras lo más bajo entre la banda verde y el
+  // icono (que en modo compacto sobresale de la banda).
+  const bottomEdge = Math.max(H, topMargin + logoSize);
+  return top - bottomEdge - 14;
 }
 
 /** Línea fina horizontal, usada para separar el bloque del emisor del resto
