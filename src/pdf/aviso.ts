@@ -24,8 +24,9 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
     regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
     bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
   };
+  const logoImage = await embedLogo(pdfDoc);
 
-  let y = drawHeader(page, fonts, []);
+  let y = drawHeader(page, fonts, logoImage, []);
   const contentWidth = PAGE.width - PAGE.margin * 2;
 
   y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
@@ -54,7 +55,7 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
   y = drawSectionBar(page, { x: PAGE.margin, y, width: contentWidth, text: "DETALLES DE VENTANA DE MANTENIMIENTO", fonts, size: 11.5 });
   drawContentBox(page, fonts, { x: PAGE.margin, y, width: contentWidth, text: buildBodyText(data), size: 10.5, lineHeight: 16 });
 
-  drawFooter(page, await embedLogo(pdfDoc));
+  drawFooter(page, logoImage);
 
   return pdfDoc.save();
 }

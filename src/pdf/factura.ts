@@ -12,6 +12,7 @@ import {
   drawMiniHeading,
   formatEUR,
   formatDateEs,
+  formatFacturaNumber,
 } from "./layout";
 import { embedLogo } from "./logo";
 import { BUSINESS } from "../config/business";
@@ -26,8 +27,9 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
     bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
   };
+  const logoImage = await embedLogo(pdfDoc);
 
-  let y = drawHeader(page, fonts, ["FACTURA", data.number]);
+  let y = drawHeader(page, fonts, logoImage, ["FACTURA", formatFacturaNumber(data.number)]);
   const contentWidth = PAGE.width - PAGE.margin * 2;
   y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
 
@@ -94,7 +96,7 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     y -= 11;
   }
 
-  drawFooter(page, await embedLogo(pdfDoc));
+  drawFooter(page, logoImage);
 
   return pdfDoc.save();
 }

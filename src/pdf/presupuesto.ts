@@ -28,8 +28,9 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
     regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
     bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
   };
+  const logoImage = await embedLogo(pdfDoc);
 
-  let y = drawHeader(page, fonts, ["PRESUPUESTO"]);
+  let y = drawHeader(page, fonts, logoImage, ["PRESUPUESTO"]);
   const contentWidth = PAGE.width - PAGE.margin * 2;
   y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
 
@@ -107,7 +108,7 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
     y -= 11;
   }
 
-  drawFooter(page, await embedLogo(pdfDoc));
+  drawFooter(page, logoImage);
 
   return pdfDoc.save();
 }

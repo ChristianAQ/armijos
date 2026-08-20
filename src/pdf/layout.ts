@@ -8,7 +8,8 @@ export interface Fonts {
   bold: PDFFont;
 }
 
-const HEADER_HEIGHT = 100;
+const HEADER_HEIGHT = 180;
+const HEADER_LOGO_SIZE = 70;
 const FOOTER_WEDGE_HEIGHT = 85;
 const FOOTER_BAR_HEIGHT = 14;
 
@@ -20,6 +21,14 @@ export function formatDateEs(iso: string): string {
   const [y, m, d] = iso.split("-");
   if (!y || !m || !d) return iso;
   return `${d}/${m}/${y}`;
+}
+
+/** "N.º 00035": el número de factura tal y como se muestra en la cabecera
+ * del PDF, con ceros a la izquierda hasta 5 cifras. El número guardado
+ * (Firestore, nombre de archivo, formulario) no se toca, esto es solo
+ * presentación. */
+export function formatFacturaNumber(number: string): string {
+  return `N.º ${number.padStart(5, "0")}`;
 }
 
 export function wrapText(font: PDFFont, size: number, text: string, maxWidth: number): string[] {
@@ -41,11 +50,11 @@ export function wrapText(font: PDFFont, size: number, text: string, maxWidth: nu
   return lines;
 }
 
-/** Dibuja la banda diagonal superior con el nombre del negocio y, opcionalmente,
- * una etiqueta (p.ej. ["FACTURA", "32"]) dentro de la cuña de color. Devuelve
- * la coordenada Y (sistema de páginas, origen abajo) donde empieza el
- * contenido libre. */
-export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = []): number {
+/** Dibuja la banda diagonal superior con el logotipo, el nombre del negocio
+ * debajo y, opcionalmente, una etiqueta (p.ej. ["FACTURA", "N.º 00035"])
+ * dentro de la cuña de color. Devuelve la coordenada Y (sistema de páginas,
+ * origen abajo) donde empieza el contenido libre. */
+export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, labelLines: string[] = []): number {
   const W = PAGE.width;
   const H = HEADER_HEIGHT;
   const top = PAGE.height;
@@ -67,21 +76,26 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
   const topMargin = PAGE.margin + 6;
 
   if (labelLines.length) {
-    let ly = top - topMargin - 12;
-    for (const line of labelLines) {
-      const size = line.length > 3 ? 18 : 22;
+    // Centrada verticalmente en la cabecera (ahora más alta por el logo).
+    let ly = top - H / 2 + 14;
+    labelLines.forEach((line, i) => {
+      const size = i === 0 ? 18 : 26;
       const w = fonts.bold.widthOfTextAtSize(line, size);
       page.drawText(line, { x: W - PAGE.margin - w, y: ly, size, font: fonts.bold, color: COLORS.white });
       ly -= size + 4;
-    }
+    });
   }
 
+  // Logotipo (icono + "ARMIJOS"), más grande y por encima del nombre del
+  // negocio, que a su vez se reduce para no competir con él.
+  page.drawImage(logoImage, { x: PAGE.margin, y: top - topMargin - HEADER_LOGO_SIZE, width: HEADER_LOGO_SIZE, height: HEADER_LOGO_SIZE });
+
   // Bloque de datos del emisor, a la izquierda de la cuña: nombre del
-  // negocio, luego titular+DNI, contacto y dirección agrupados en una línea
-  // cada uno, con más aire entre bloques para una lectura más profesional.
-  let y = top - topMargin;
-  page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 15, font: fonts.bold, color: COLORS.black });
-  y -= 20;
+  // negocio (más pequeño, bajo el logo), luego titular+DNI, contacto y
+  // dirección agrupados en una línea cada uno.
+  let y = top - topMargin - HEADER_LOGO_SIZE - 10;
+  page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 10, font: fonts.bold, color: COLORS.black });
+  y -= 15;
 
   page.drawText(`${BUSINESS.owner} · DNI ${BUSINESS.dni}`, {
     x: PAGE.margin,
