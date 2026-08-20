@@ -61,12 +61,17 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
     color: COLORS.green,
   });
 
+  // Margen superior: el mismo que se usa a los lados del documento
+  // (PAGE.margin), y un poco más, para que la cabecera no quede pegada al
+  // borde de la página.
+  const topMargin = PAGE.margin + 6;
+
   if (labelLines.length) {
-    let ly = top - 38;
+    let ly = top - topMargin - 12;
     for (const line of labelLines) {
       const size = line.length > 3 ? 18 : 22;
       const w = fonts.bold.widthOfTextAtSize(line, size);
-      page.drawText(line, { x: W - 34 - w, y: ly, size, font: fonts.bold, color: COLORS.white });
+      page.drawText(line, { x: W - PAGE.margin - w, y: ly, size, font: fonts.bold, color: COLORS.white });
       ly -= size + 4;
     }
   }
@@ -74,7 +79,7 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
   // Bloque de datos del emisor, a la izquierda de la cuña: nombre del
   // negocio, luego titular+DNI, contacto y dirección agrupados en una línea
   // cada uno, con más aire entre bloques para una lectura más profesional.
-  let y = top - 34;
+  let y = top - topMargin;
   page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 15, font: fonts.bold, color: COLORS.black });
   y -= 20;
 
