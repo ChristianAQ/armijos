@@ -142,7 +142,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initial
         });
       }
       await createTemplate({
-        name: templateName.trim() || client.name.trim() || "Plantilla sin nombre",
+        name: templateName.trim() || client.name.trim() || "Factura recurrente sin nombre",
         clientId,
         clientSnapshot: client,
         items,
@@ -150,7 +150,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initial
         paymentMethod,
         bankAccount: paymentMethod === "transferencia" ? bankAccount : "",
       });
-      show("Plantilla guardada", "success");
+      show("Factura recurrente guardada", "success");
       setSavingTemplate(false);
       setTemplateName("");
     } catch (err) {
@@ -234,10 +234,10 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initial
         (savingTemplate ? (
           <div className="flex gap-2">
             <Input
-              label="Nombre de la plantilla"
+              label="Nombre de la factura recurrente"
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
-              placeholder={client.name.trim() || "Nombre de la plantilla"}
+              placeholder={client.name.trim() || "Nombre de la factura recurrente"}
               className="flex-1"
               autoFocus
             />
@@ -250,7 +250,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initial
           </div>
         ) : (
           <Button type="button" variant="secondary" onClick={() => setSavingTemplate(true)}>
-            Guardar como plantilla
+            Guardar como factura recurrente
           </Button>
         ))}
 

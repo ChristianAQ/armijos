@@ -3,9 +3,10 @@ import { FileText, ClipboardList, TriangleAlert, Files, History, Settings, LogOu
 import { logOut } from "../services/auth.service";
 import { PageContainer } from "../components/layout/PageContainer";
 
+const FEATURED_ACTION = { to: "/plantillas", label: "Facturas de clientes recurrentes", icon: Files };
+
 const ACTIONS = [
   { to: "/nueva-factura", label: "Nueva factura", icon: FileText },
-  { to: "/plantillas", label: "Plantillas de factura", icon: Files },
   { to: "/nuevo-presupuesto", label: "Nuevo presupuesto", icon: ClipboardList },
   { to: "/nuevo-aviso", label: "Nuevo aviso de mantenimiento", icon: TriangleAlert },
 ];
@@ -29,6 +30,19 @@ export function Home() {
         </div>
 
         <div className="flex flex-col gap-3">
+          <Link
+            to={FEATURED_ACTION.to}
+            className="flex items-center gap-4 rounded-2xl bg-brand-dark p-4 shadow-md active:scale-[0.98]"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+              <FEATURED_ACTION.icon size={22} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-base font-semibold text-white">{FEATURED_ACTION.label}</span>
+              <p className="text-sm text-white/70">Solo cambia el número y la fecha</p>
+            </div>
+          </Link>
+
           {ACTIONS.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}

@@ -25,7 +25,7 @@ export function Templates() {
 
   async function handleDelete(e: React.MouseEvent, template: FacturaTemplate) {
     e.stopPropagation();
-    if (!window.confirm(`¿Eliminar la plantilla "${template.name}"?`)) return;
+    if (!window.confirm(`¿Eliminar la factura recurrente "${template.name}"?`)) return;
     try {
       await deleteTemplate(template.id);
       setTemplates((prev) => prev.filter((t) => t.id !== template.id));
@@ -36,12 +36,12 @@ export function Templates() {
 
   return (
     <div>
-      <TopBar title="Plantillas de factura" />
+      <TopBar title="Facturas de clientes recurrentes" />
       <PageContainer>
         {!loading && templates.length === 0 && (
           <EmptyState
-            title="Sin plantillas todavía"
-            description='Rellena una factura y pulsa "Guardar como plantilla" para tenerla lista el mes que viene.'
+            title="Sin facturas recurrentes todavía"
+            description='Rellena una factura y pulsa "Guardar como factura recurrente" para tenerla lista el mes que viene.'
           />
         )}
         <div className="flex flex-col gap-2">
@@ -62,7 +62,7 @@ export function Templates() {
                 role="button"
                 onClick={(e) => handleEdit(e, template)}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100"
-                aria-label="Editar plantilla"
+                aria-label="Editar factura recurrente"
               >
                 <Pencil size={17} />
               </span>
@@ -70,7 +70,7 @@ export function Templates() {
                 role="button"
                 onClick={(e) => handleDelete(e, template)}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 hover:bg-red-50"
-                aria-label="Eliminar plantilla"
+                aria-label="Eliminar factura recurrente"
               >
                 <Trash2 size={17} />
               </span>

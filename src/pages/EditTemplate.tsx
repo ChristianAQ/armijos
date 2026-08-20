@@ -63,7 +63,7 @@ export function EditTemplate() {
         });
       }
       await updateTemplate(id, {
-        name: name.trim() || client.name.trim() || "Plantilla sin nombre",
+        name: name.trim() || client.name.trim() || "Factura recurrente sin nombre",
         clientId,
         clientSnapshot: client,
         items,
@@ -71,7 +71,7 @@ export function EditTemplate() {
         paymentMethod,
         bankAccount: paymentMethod === "transferencia" ? bankAccount : "",
       });
-      show("Plantilla actualizada", "success");
+      show("Factura recurrente actualizada", "success");
       navigate("/plantillas");
     } catch (err) {
       show(friendlyError(err), "error");
@@ -82,13 +82,13 @@ export function EditTemplate() {
 
   return (
     <div>
-      <TopBar title="Editar plantilla" />
+      <TopBar title="Editar factura recurrente" />
       <PageContainer>
         {loading && <p className="text-sm text-neutral-500">Cargando…</p>}
-        {!loading && !template && <p className="text-sm text-neutral-500">Esta plantilla ya no existe.</p>}
+        {!loading && !template && <p className="text-sm text-neutral-500">Esta factura recurrente ya no existe.</p>}
         {!loading && template && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <Input label="Nombre de la plantilla" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input label="Nombre de la factura recurrente" value={name} onChange={(e) => setName(e.target.value)} />
 
             <ClientPicker clients={clients} value={client} onChange={setClient} />
 
