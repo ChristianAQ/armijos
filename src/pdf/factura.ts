@@ -37,9 +37,9 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
 
   y = drawMiniHeading(page, fonts, { x: PAGE.margin, y, text: "DATOS DEL CLIENTE" });
   const fieldBoxWidth = PAGE.width - PAGE.margin * 2 - 90;
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Cliente:", value: data.clientSnapshot.name, boxWidth: fieldBoxWidth, fonts });
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "C.I.F :", value: data.clientSnapshot.cif, boxWidth: fieldBoxWidth, fonts });
-  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Dirección:", value: data.clientSnapshot.address, boxWidth: fieldBoxWidth, fonts });
+  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Cliente", value: data.clientSnapshot.name, boxWidth: fieldBoxWidth, fonts });
+  y = drawFieldRow(page, { x: PAGE.margin, y, label: "C.I.F", value: data.clientSnapshot.cif, boxWidth: fieldBoxWidth, fonts });
+  y = drawFieldRow(page, { x: PAGE.margin, y, label: "Dirección", value: data.clientSnapshot.address, boxWidth: fieldBoxWidth, fonts });
   y -= 14;
 
   const descW = contentWidth - 90 - 70 - 90;
@@ -53,7 +53,7 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     x: PAGE.margin,
     y,
     columns: [
-      { label: "DESCRIPCIÒN", width: descW, align: "left" },
+      { label: "DESCRIPCIÓN", width: descW, align: "left" },
       { label: "IMPORTE", width: 90, align: "right" },
       { label: "CANTIDAD", width: 70, align: "right" },
       { label: "TOTAL", width: 90, align: "right" },
