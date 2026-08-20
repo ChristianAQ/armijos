@@ -11,6 +11,7 @@ import { useClients } from "../../hooks/useClients";
 import { useToast } from "../../context/ToastContext";
 import { upsertClient } from "../../services/clients.service";
 import { saveDocument } from "../../services/documents.service";
+import { createTemplate } from "../../services/templates.service";
 import { buildFacturaPdf } from "../../pdf/factura";
 import { buildPresupuestoPdf } from "../../pdf/presupuesto";
 import { computeTotals } from "../../lib/totals";
@@ -19,10 +20,19 @@ import { todayIso } from "../../lib/format";
 import { friendlyError } from "../../lib/errors";
 import type { FacturaData, LineItem, PaymentMethod, PresupuestoData } from "../../types";
 
+interface InitialData {
+  client: { name: string; cif: string; address: string };
+  items: LineItem[];
+  applyIva: boolean;
+  paymentMethod: PaymentMethod;
+  bankAccount: string;
+}
+
 interface Props {
   type: "factura" | "presupuesto";
   suggestedNumber?: string;
   defaultBankAccount: string;
+  initialData?: InitialData;
 }
 
 const WORK_DESCRIPTION_PRESETS = [
@@ -52,20 +62,23 @@ const WORK_DESCRIPTION_PRESETS = [
   },
 ];
 
-export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props) {
+export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initialData }: Props) {
   const navigate = useNavigate();
   const { show } = useToast();
   const { clients, setClients } = useClients();
 
   const [number, setNumber] = useState(suggestedNumber ?? "");
   const [date, setDate] = useState(todayIso());
-  const [client, setClient] = useState({ name: "", cif: "", address: "" });
+  const [client, setClient] = useState(initialData?.client ?? { name: "", cif: "", address: "" });
   const [workDescription, setWorkDescription] = useState("");
-  const [items, setItems] = useState<LineItem[]>([{ description: "", unitPrice: 0, quantity: 1 }]);
-  const [applyIva, setApplyIva] = useState(type === "factura");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("transferencia");
-  const [bankAccount, setBankAccount] = useState(defaultBankAccount);
+  const [items, setItems] = useState<LineItem[]>(initialData?.items ?? [{ description: "", unitPrice: 0, quantity: 1 }]);
+  const [applyIva, setApplyIva] = useState(initialData?.applyIva ?? type === "factura");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod ?? "transferencia");
+  const [bankAccount, setBankAccount] = useState(initialData?.bankAccount ?? defaultBankAccount);
   const [submitting, setSubmitting] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateSubmitting, setTemplateSubmitting] = useState(false);
 
   const totals = computeTotals(items, applyIva);
 
@@ -115,6 +128,35 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
       show(friendlyError(err), "error");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleSaveTemplate() {
+    setTemplateSubmitting(true);
+    try {
+      const clientId = client.name.trim() ? await upsertClient(client, clients) : null;
+      if (clientId) {
+        setClients((prev) => {
+          const exists = prev.some((c) => c.id === clientId);
+          return exists ? prev : [...prev, { id: clientId, ...client, createdAt: Date.now(), updatedAt: Date.now() }];
+        });
+      }
+      await createTemplate({
+        name: templateName.trim() || client.name.trim() || "Plantilla sin nombre",
+        clientId,
+        clientSnapshot: client,
+        items,
+        applyIva,
+        paymentMethod,
+        bankAccount: paymentMethod === "transferencia" ? bankAccount : "",
+      });
+      show("Plantilla guardada", "success");
+      setSavingTemplate(false);
+      setTemplateName("");
+    } catch (err) {
+      show(friendlyError(err), "error");
+    } finally {
+      setTemplateSubmitting(false);
     }
   }
 
@@ -187,6 +229,30 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
       {paymentMethod === "transferencia" && (
         <Input label="Número de cuenta" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="ES00 0000 0000 0000 0000 0000" />
       )}
+
+      {type === "factura" &&
+        (savingTemplate ? (
+          <div className="flex gap-2">
+            <Input
+              label="Nombre de la plantilla"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder={client.name.trim() || "Nombre de la plantilla"}
+              className="flex-1"
+              autoFocus
+            />
+            <Button type="button" variant="secondary" onClick={handleSaveTemplate} loading={templateSubmitting} className="self-end">
+              Guardar
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setSavingTemplate(false)} className="self-end">
+              Cancelar
+            </Button>
+          </div>
+        ) : (
+          <Button type="button" variant="secondary" onClick={() => setSavingTemplate(true)}>
+            Guardar como plantilla
+          </Button>
+        ))}
 
       <Button type="submit" size="lg" loading={submitting}>
         Generar PDF

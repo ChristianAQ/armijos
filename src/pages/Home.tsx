@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { FileText, ClipboardList, TriangleAlert, History, Settings, LogOut } from "lucide-react";
+import { FileText, ClipboardList, TriangleAlert, Files, History, Settings, LogOut } from "lucide-react";
 import { logOut } from "../services/auth.service";
 import { PageContainer } from "../components/layout/PageContainer";
 
 const ACTIONS = [
   { to: "/nueva-factura", label: "Nueva factura", icon: FileText },
+  { to: "/plantillas", label: "Plantillas de factura", icon: Files },
   { to: "/nuevo-presupuesto", label: "Nuevo presupuesto", icon: ClipboardList },
   { to: "/nuevo-aviso", label: "Nuevo aviso de mantenimiento", icon: TriangleAlert },
 ];

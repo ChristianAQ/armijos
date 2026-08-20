@@ -8,6 +8,8 @@ import { NewAviso } from "./pages/NewAviso";
 import { DocumentReady } from "./pages/DocumentReady";
 import { History } from "./pages/History";
 import { Settings } from "./pages/Settings";
+import { Templates } from "./pages/Templates";
+import { EditTemplate } from "./pages/EditTemplate";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -28,6 +30,8 @@ export default function App() {
       <Route path="/nuevo-aviso" element={<NewAviso />} />
       <Route path="/documento-listo" element={<DocumentReady />} />
       <Route path="/historial" element={<History />} />
+      <Route path="/plantillas" element={<Templates />} />
+      <Route path="/plantillas/:id" element={<EditTemplate />} />
       <Route path="/ajustes" element={<Settings />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

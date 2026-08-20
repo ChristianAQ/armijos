@@ -33,6 +33,19 @@ export interface FacturaData {
   bankAccount: string;
 }
 
+export interface FacturaTemplate {
+  id: string;
+  name: string;
+  clientId: string | null;
+  clientSnapshot: { name: string; cif: string; address: string };
+  items: LineItem[];
+  applyIva: boolean;
+  paymentMethod: PaymentMethod;
+  bankAccount: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface PresupuestoData {
   type: "presupuesto";
   date: string;

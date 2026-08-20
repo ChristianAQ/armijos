@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java -version)",
+      "Read(//c/Users/carmijos.ext/AppData/Local/**)",
+      "Bash(npx firebase-tools *)",
+      "Bash(disown)",
+      "Bash(echo \"started, pid $!\")",
+      "Bash(timeout 60 bash -c 'until curl -sf http://127.0.0.1:9099 >/dev/null 2>&1; do sleep 1; done')",
+      "Bash(curl -s http://127.0.0.1:8080)",
+      "Bash(cat /tmp_firebase_emulators.log)"
+    ]
+  }
+}
