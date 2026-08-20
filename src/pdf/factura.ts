@@ -2,7 +2,6 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
 import {
   drawHeader,
-  drawFooter,
   drawFieldRow,
   drawTable,
   drawTotals,
@@ -95,8 +94,6 @@ export async function buildFacturaPdf(data: FacturaData): Promise<Uint8Array> {
     page.drawText(line, { x: PAGE.margin, y, size: 8, font: fonts.regular, color: COLORS.gray });
     y -= 11;
   }
-
-  drawFooter(page, logoImage);
 
   return pdfDoc.save();
 }

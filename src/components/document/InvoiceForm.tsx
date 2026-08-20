@@ -153,12 +153,8 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="flex gap-3">
-        {type === "factura" && (
-          <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} className="w-28" />
-        )}
-        <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="flex-1" />
-      </div>
+      {type === "factura" && <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} />}
+      <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
       <ClientPicker clients={clients} value={client} onChange={setClient} />
 

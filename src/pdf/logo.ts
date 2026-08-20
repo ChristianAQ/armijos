@@ -1,4 +1,4 @@
-import type { PDFDocument, PDFImage, PDFPage } from "pdf-lib";
+import type { PDFDocument, PDFImage } from "pdf-lib";
 import { LOGO_PNG_BASE64 } from "./assets/logo";
 
 function base64ToBytes(base64: string): Uint8Array {
@@ -9,15 +9,7 @@ function base64ToBytes(base64: string): Uint8Array {
 }
 
 /** Embebe el logotipo ARMIJOS (imagen real, ver ./assets/logo.ts) en el
- * documento. Se llama una vez por PDF, antes de dibujar el pie de página. */
+ * documento. Se llama una vez por PDF, antes de dibujar la cabecera. */
 export async function embedLogo(pdfDoc: PDFDocument): Promise<PDFImage> {
   return pdfDoc.embedPng(base64ToBytes(LOGO_PNG_BASE64));
-}
-
-// La imagen incluye el nombre "ARMIJOS" bajo el icono, así que necesita más
-// tamaño que un icono suelto para que el texto siga siendo legible.
-const LOGO_SIZE = 64;
-
-export function drawLogo(page: PDFPage, image: PDFImage, x: number, y: number) {
-  page.drawImage(image, { x, y, width: LOGO_SIZE, height: LOGO_SIZE });
 }

@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
-import { drawHeader, drawFooter, drawSectionBar, drawContentBox, drawDivider, formatDateEs } from "./layout";
+import { drawHeader, drawSectionBar, drawContentBox, drawDivider, formatDateEs } from "./layout";
 import { embedLogo } from "./logo";
 import type { AvisoData } from "../types";
 
@@ -54,8 +54,6 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
 
   y = drawSectionBar(page, { x: PAGE.margin, y, width: contentWidth, text: "DETALLES DE VENTANA DE MANTENIMIENTO", fonts, size: 11.5 });
   drawContentBox(page, fonts, { x: PAGE.margin, y, width: contentWidth, text: buildBodyText(data), size: 10.5, lineHeight: 16 });
-
-  drawFooter(page, logoImage);
 
   return pdfDoc.save();
 }

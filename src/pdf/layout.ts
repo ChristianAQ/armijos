@@ -1,6 +1,5 @@
 import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
-import { drawLogo } from "./logo";
 import { BUSINESS } from "../config/business";
 
 export interface Fonts {
@@ -8,10 +7,8 @@ export interface Fonts {
   bold: PDFFont;
 }
 
-const HEADER_HEIGHT = 180;
-const HEADER_LOGO_SIZE = 70;
-const FOOTER_WEDGE_HEIGHT = 85;
-const FOOTER_BAR_HEIGHT = 14;
+const HEADER_HEIGHT = 200;
+const HEADER_LOGO_SIZE = 90;
 
 export function formatEUR(n: number): string {
   return `${n.toFixed(2)} €`;
@@ -59,12 +56,13 @@ export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, lab
   const H = HEADER_HEIGHT;
   const top = PAGE.height;
 
-  page.drawSvgPath(`M${W - 190},0 L${W},0 L${W},${H} L${W - 260},${H} Z`, {
+  // Cuña de color más pequeña que antes, para que no domine la cabecera.
+  page.drawSvgPath(`M${W - 140},0 L${W},0 L${W},${H} L${W - 190},${H} Z`, {
     x: 0,
     y: top,
     color: COLORS.darkGreen,
   });
-  page.drawSvgPath(`M${W - 214},0 L${W - 198},0 L${W - 268},${H} L${W - 284},${H} Z`, {
+  page.drawSvgPath(`M${W - 164},0 L${W - 150},0 L${W - 214},${H} L${W - 228},${H} Z`, {
     x: 0,
     y: top,
     color: COLORS.green,
@@ -77,9 +75,9 @@ export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, lab
 
   if (labelLines.length) {
     // Centrada verticalmente en la cabecera (ahora más alta por el logo).
-    let ly = top - H / 2 + 14;
+    let ly = top - H / 2 + 10;
     labelLines.forEach((line, i) => {
-      const size = i === 0 ? 18 : 26;
+      const size = i === 0 ? 22 : 14;
       const w = fonts.bold.widthOfTextAtSize(line, size);
       page.drawText(line, { x: W - PAGE.margin - w, y: ly, size, font: fonts.bold, color: COLORS.white });
       ly -= size + 4;
@@ -143,27 +141,6 @@ export function drawDivider(page: PDFPage, opts: { x: number; y: number; width: 
 export function drawMiniHeading(page: PDFPage, fonts: Fonts, opts: { x: number; y: number; text: string }): number {
   page.drawText(opts.text, { x: opts.x, y: opts.y, size: 9.5, font: fonts.bold, color: COLORS.deepGreen });
   return opts.y - 16;
-}
-
-export function drawFooter(page: PDFPage, logoImage: PDFImage) {
-  const W = PAGE.width;
-  const Hf = FOOTER_WEDGE_HEIGHT;
-  const barTop = FOOTER_BAR_HEIGHT;
-
-  page.drawRectangle({ x: 0, y: 0, width: W, height: barTop, color: COLORS.darkGreen });
-
-  page.drawSvgPath(`M0,0 L190,0 L260,${Hf} L0,${Hf} Z`, {
-    x: 0,
-    y: barTop + Hf,
-    color: COLORS.darkGreen,
-  });
-  page.drawSvgPath(`M198,0 L214,0 L284,${Hf} L268,${Hf} Z`, {
-    x: 0,
-    y: barTop + Hf,
-    color: COLORS.green,
-  });
-
-  drawLogo(page, logoImage, 20, 18);
 }
 
 interface FieldRowOptions {

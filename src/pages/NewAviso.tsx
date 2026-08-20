@@ -77,10 +77,8 @@ export function NewAviso() {
 
           <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
-          <div className="flex gap-3">
-            <Input label="Desde" type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} className="flex-1" />
-            <Input label="Hasta" type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} className="flex-1" />
-          </div>
+          <Input label="Desde" type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
+          <Input label="Hasta" type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
 
           <div>
             <span className="mb-2 block text-sm font-medium text-neutral-700">Motivo del trabajo</span>

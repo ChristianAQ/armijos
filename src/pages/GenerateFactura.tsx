@@ -98,10 +98,8 @@ export function GenerateFactura() {
         {!loading && !template && <p className="text-sm text-neutral-500">Esta factura recurrente ya no existe.</p>}
         {!loading && template && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <div className="flex gap-3">
-              <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} className="w-28" />
-              <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="flex-1" />
-            </div>
+            <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} />
+            <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
             <Card className="flex flex-col gap-3 text-sm">
               <div>
