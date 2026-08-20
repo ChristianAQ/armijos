@@ -8,6 +8,14 @@ body,
   height: 100%;
 }
 
+html,
+body {
+  /* Algunos inputs nativos (date/time) en móvil pueden renderizar su widget
+     interno más ancho que su contenedor sin que el CSS del input lo evite;
+     esto corta ese desbordamiento en vez de dejar aparecer scroll lateral. */
+  overflow-x: hidden;
+}
+
 body {
   @apply bg-neutral-50 text-neutral-900 antialiased;
 }
