@@ -15,7 +15,7 @@ export function Templates() {
   const { show } = useToast();
 
   function handleUse(template: FacturaTemplate) {
-    navigate("/nueva-factura", { state: { template } });
+    navigate(`/plantillas/${template.id}/generar`, { state: { template } });
   }
 
   function handleEdit(e: React.MouseEvent, template: FacturaTemplate) {

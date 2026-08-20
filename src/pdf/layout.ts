@@ -71,27 +71,38 @@ export function drawHeader(page: PDFPage, fonts: Fonts, labelLines: string[] = [
     }
   }
 
-  // Bloque de datos del emisor, a la izquierda de la cuña
+  // Bloque de datos del emisor, a la izquierda de la cuña: nombre del
+  // negocio, luego titular+DNI, contacto y dirección agrupados en una línea
+  // cada uno, con más aire entre bloques para una lectura más profesional.
   let y = top - 26;
   page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 15, font: fonts.bold, color: COLORS.black });
-  y -= 18;
-  const smallLines = [
-    `${BUSINESS.owner} con DNI ${BUSINESS.dni}`,
-    BUSINESS.email,
-    BUSINESS.phone,
-    ...BUSINESS.addressLines,
-  ];
-  for (const line of smallLines) {
-    const isContact = line === BUSINESS.email || line === BUSINESS.phone;
-    page.drawText(line, {
-      x: PAGE.margin,
-      y,
-      size: 9.5,
-      font: fonts.regular,
-      color: isContact ? COLORS.navy : COLORS.black,
-    });
-    y -= 13;
-  }
+  y -= 20;
+
+  page.drawText(`${BUSINESS.owner} · DNI ${BUSINESS.dni}`, {
+    x: PAGE.margin,
+    y,
+    size: 9.5,
+    font: fonts.regular,
+    color: COLORS.gray,
+  });
+  y -= 15;
+
+  page.drawText(`${BUSINESS.phone} · ${BUSINESS.email}`, {
+    x: PAGE.margin,
+    y,
+    size: 9.5,
+    font: fonts.bold,
+    color: COLORS.navy,
+  });
+  y -= 15;
+
+  page.drawText(BUSINESS.addressLines.join(" ").replace(/,$/, ""), {
+    x: PAGE.margin,
+    y,
+    size: 9.5,
+    font: fonts.regular,
+    color: COLORS.gray,
+  });
 
   return top - H - 14;
 }

@@ -1,7 +1,8 @@
+import type { ReactNode } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export function TopBar({ title, back = true }: { title: string; back?: boolean }) {
+export function TopBar({ title, back = true, right }: { title: string; back?: boolean; right?: ReactNode }) {
   const navigate = useNavigate();
   return (
     <div
@@ -17,7 +18,8 @@ export function TopBar({ title, back = true }: { title: string; back?: boolean }
           <ChevronLeft size={22} />
         </button>
       )}
-      <h1 className="text-base font-semibold text-neutral-900">{title}</h1>
+      <h1 className="flex-1 text-base font-semibold text-neutral-900">{title}</h1>
+      {right}
     </div>
   );
 }

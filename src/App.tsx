@@ -10,6 +10,7 @@ import { History } from "./pages/History";
 import { Settings } from "./pages/Settings";
 import { Templates } from "./pages/Templates";
 import { EditTemplate } from "./pages/EditTemplate";
+import { GenerateFactura } from "./pages/GenerateFactura";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
       <Route path="/historial" element={<History />} />
       <Route path="/plantillas" element={<Templates />} />
       <Route path="/plantillas/:id" element={<EditTemplate />} />
+      <Route path="/plantillas/:id/generar" element={<GenerateFactura />} />
       <Route path="/ajustes" element={<Settings />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

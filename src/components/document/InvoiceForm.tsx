@@ -20,19 +20,10 @@ import { todayIso } from "../../lib/format";
 import { friendlyError } from "../../lib/errors";
 import type { FacturaData, LineItem, PaymentMethod, PresupuestoData } from "../../types";
 
-interface InitialData {
-  client: { name: string; cif: string; address: string };
-  items: LineItem[];
-  applyIva: boolean;
-  paymentMethod: PaymentMethod;
-  bankAccount: string;
-}
-
 interface Props {
   type: "factura" | "presupuesto";
   suggestedNumber?: string;
   defaultBankAccount: string;
-  initialData?: InitialData;
 }
 
 const WORK_DESCRIPTION_PRESETS = [
@@ -62,19 +53,19 @@ const WORK_DESCRIPTION_PRESETS = [
   },
 ];
 
-export function InvoiceForm({ type, suggestedNumber, defaultBankAccount, initialData }: Props) {
+export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props) {
   const navigate = useNavigate();
   const { show } = useToast();
   const { clients, setClients } = useClients();
 
   const [number, setNumber] = useState(suggestedNumber ?? "");
   const [date, setDate] = useState(todayIso());
-  const [client, setClient] = useState(initialData?.client ?? { name: "", cif: "", address: "" });
+  const [client, setClient] = useState({ name: "", cif: "", address: "" });
   const [workDescription, setWorkDescription] = useState("");
-  const [items, setItems] = useState<LineItem[]>(initialData?.items ?? [{ description: "", unitPrice: 0, quantity: 1 }]);
-  const [applyIva, setApplyIva] = useState(initialData?.applyIva ?? type === "factura");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod ?? "transferencia");
-  const [bankAccount, setBankAccount] = useState(initialData?.bankAccount ?? defaultBankAccount);
+  const [items, setItems] = useState<LineItem[]>([{ description: "", unitPrice: 0, quantity: 1 }]);
+  const [applyIva, setApplyIva] = useState(type === "factura");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("transferencia");
+  const [bankAccount, setBankAccount] = useState(defaultBankAccount);
   const [submitting, setSubmitting] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [templateName, setTemplateName] = useState("");
