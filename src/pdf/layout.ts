@@ -1,4 +1,4 @@
-import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
+import type { Color, PDFFont, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
 import { BUSINESS } from "../config/business";
 
@@ -8,6 +8,7 @@ export interface Fonts {
 }
 
 const HEADER_HEIGHT = 200;
+const HEADER_HEIGHT_COMPACT = 148;
 const HEADER_LOGO_SIZE = 90;
 
 export function formatEUR(n: number): string {
@@ -51,9 +52,15 @@ export function wrapText(font: PDFFont, size: number, text: string, maxWidth: nu
  * debajo y, opcionalmente, una etiqueta (p.ej. ["FACTURA", "N.º 00035"])
  * dentro de la cuña de color. Devuelve la coordenada Y (sistema de páginas,
  * origen abajo) donde empieza el contenido libre. */
-export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, labelLines: string[] = []): number {
+export function drawHeader(
+  page: PDFPage,
+  fonts: Fonts,
+  logoImage: PDFImage,
+  labelLines: string[] = [],
+  opts: { compact?: boolean } = {}
+): number {
   const W = PAGE.width;
-  const H = HEADER_HEIGHT;
+  const H = opts.compact ? HEADER_HEIGHT_COMPACT : HEADER_HEIGHT;
   const top = PAGE.height;
 
   page.drawSvgPath(`M${W - 190},0 L${W},0 L${W},${H} L${W - 260},${H} Z`, {
@@ -83,42 +90,43 @@ export function drawHeader(page: PDFPage, fonts: Fonts, logoImage: PDFImage, lab
     });
   }
 
-  // Logotipo (icono + "ARMIJOS"), más grande y por encima del nombre del
-  // negocio, que a su vez se reduce para no competir con él.
+  // Logotipo (icono + "ARMIJOS").
   page.drawImage(logoImage, { x: PAGE.margin, y: top - topMargin - HEADER_LOGO_SIZE, width: HEADER_LOGO_SIZE, height: HEADER_LOGO_SIZE });
 
-  // Bloque de datos del emisor, a la izquierda de la cuña: nombre del
-  // negocio (más pequeño, bajo el logo), luego titular+DNI, contacto y
-  // dirección agrupados en una línea cada uno.
-  let y = top - topMargin - HEADER_LOGO_SIZE - 10;
-  page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 10, font: fonts.bold, color: COLORS.black });
-  y -= 15;
+  // En modo compacto los datos del emisor viven más abajo, en el bloque
+  // "DATOS DE LA EMPRESA" (estilo elegante, sin caja); la cabecera se queda
+  // solo con el logo, del alto justo para él.
+  if (!opts.compact) {
+    let y = top - topMargin - HEADER_LOGO_SIZE - 10;
+    page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 10, font: fonts.bold, color: COLORS.black });
+    y -= 15;
 
-  page.drawText(`${BUSINESS.owner} · DNI ${BUSINESS.dni}`, {
-    x: PAGE.margin,
-    y,
-    size: 9.5,
-    font: fonts.regular,
-    color: COLORS.gray,
-  });
-  y -= 15;
+    page.drawText(`${BUSINESS.owner} · DNI ${BUSINESS.dni}`, {
+      x: PAGE.margin,
+      y,
+      size: 9.5,
+      font: fonts.regular,
+      color: COLORS.gray,
+    });
+    y -= 15;
 
-  page.drawText(`${BUSINESS.phone} · ${BUSINESS.email}`, {
-    x: PAGE.margin,
-    y,
-    size: 9.5,
-    font: fonts.bold,
-    color: COLORS.navy,
-  });
-  y -= 15;
+    page.drawText(`${BUSINESS.phone} · ${BUSINESS.email}`, {
+      x: PAGE.margin,
+      y,
+      size: 9.5,
+      font: fonts.bold,
+      color: COLORS.navy,
+    });
+    y -= 15;
 
-  page.drawText(BUSINESS.addressLines.join(" ").replace(/,$/, ""), {
-    x: PAGE.margin,
-    y,
-    size: 9.5,
-    font: fonts.regular,
-    color: COLORS.gray,
-  });
+    page.drawText(BUSINESS.addressLines.join(" ").replace(/,$/, ""), {
+      x: PAGE.margin,
+      y,
+      size: 9.5,
+      font: fonts.regular,
+      color: COLORS.gray,
+    });
+  }
 
   return top - H - 14;
 }
@@ -142,80 +150,61 @@ export function drawMiniHeading(page: PDFPage, fonts: Fonts, opts: { x: number; 
   return opts.y - 16;
 }
 
-interface FieldRowOptions {
-  x: number;
-  y: number;
-  label: string;
-  value: string;
-  labelWidth?: number;
-  boxWidth: number;
-  boxHeight?: number;
-  fonts: Fonts;
+export interface InfoLine {
+  text: string;
+  bold?: boolean;
+  color?: Color;
+  size?: number;
 }
 
-/** Etiqueta en negrita + caja con borde a la derecha (estilo "Cliente:" del
- * original). El valor envuelve en varias líneas si no cabe (p.ej. una
- * dirección larga en una columna estrecha), creciendo la caja en alto.
- * Devuelve la Y para la siguiente fila. */
-export function drawFieldRow(page: PDFPage, opts: FieldRowOptions): number {
-  const { x, y, label, value, boxWidth, fonts } = opts;
-  const labelWidth = opts.labelWidth ?? 90;
-  const valueSize = 10.5;
-  const lineHeight = 13;
-  const lines = wrapText(fonts.regular, valueSize, value, boxWidth - 16);
-  const boxHeight = opts.boxHeight ?? Math.max(20, lines.length * lineHeight + 7);
-
-  page.drawText(label, { x, y: y - boxHeight / 2 - 3, size: 10.5, font: fonts.bold, color: COLORS.black });
-  const boxX = x + labelWidth;
-  page.drawRectangle({
-    x: boxX,
-    y: y - boxHeight,
-    width: boxWidth,
-    height: boxHeight,
-    color: COLORS.lightGray,
-    borderColor: COLORS.borderGray,
-    borderWidth: 1,
-  });
-  let ly = y - boxHeight / 2 - 3 + ((lines.length - 1) * lineHeight) / 2;
-  for (const line of lines) {
-    page.drawText(line, { x: boxX + 8, y: ly, size: valueSize, font: fonts.regular, color: COLORS.black });
-    ly -= lineHeight;
+/** Bloque de líneas de texto suelto (sin caja ni etiqueta), en el mismo
+ * estilo elegante que el bloque del emisor en la cabecera: cada línea con su
+ * propio tamaño/color/peso, envolviendo si no cabe en el ancho. Devuelve la
+ * Y para lo siguiente. */
+function drawInfoLines(page: PDFPage, fonts: Fonts, opts: { x: number; y: number; width: number; lines: InfoLine[] }): number {
+  let y = opts.y;
+  for (const line of opts.lines) {
+    if (!line.text) continue;
+    const font = line.bold ? fonts.bold : fonts.regular;
+    const size = line.size ?? 9.5;
+    const color = line.color ?? COLORS.gray;
+    const wrapped = wrapText(font, size, line.text, opts.width);
+    for (const wline of wrapped) {
+      page.drawText(wline, { x: opts.x, y, size, font, color });
+      y -= size + 4.5;
+    }
   }
-  return y - boxHeight - 10;
+  return y;
 }
 
-interface TwoColumnFieldsOptions {
+interface TwoColumnInfoOptions {
   x: number;
   y: number;
   width: number;
   gap?: number;
-  labelWidth?: number;
   leftHeading: string;
-  leftRows: { label: string; value: string }[];
+  leftLines: InfoLine[];
   rightHeading: string;
-  rightRows: { label: string; value: string }[];
+  rightLines: InfoLine[];
   fonts: Fonts;
 }
 
-/** Dos mini-tablas de campos en paralelo (p.ej. "DATOS DE LA EMPRESA" junto a
- * "DATOS DEL CLIENTE"), cada una con su propio titular y filas de
- * etiqueta+valor. Devuelve la Y más baja de las dos columnas. */
-export function drawTwoColumnFields(page: PDFPage, opts: TwoColumnFieldsOptions): number {
-  const gap = opts.gap ?? 20;
+/** Dos bloques de datos en paralelo (p.ej. "DATOS DE LA EMPRESA" junto a
+ * "DATOS DEL CLIENTE"), cada uno con su titular y líneas de texto sueltas,
+ * sin caja — estilo elegante, igual al del emisor en la cabecera. Devuelve
+ * la Y más baja de las dos columnas. */
+export function drawTwoColumnInfo(page: PDFPage, opts: TwoColumnInfoOptions): number {
+  const gap = opts.gap ?? 24;
   const colWidth = (opts.width - gap) / 2;
-  const labelWidth = opts.labelWidth ?? 55;
-  const boxWidth = colWidth - labelWidth;
 
   let leftY = drawMiniHeading(page, opts.fonts, { x: opts.x, y: opts.y, text: opts.leftHeading });
-  for (const row of opts.leftRows) {
-    leftY = drawFieldRow(page, { x: opts.x, y: leftY, label: row.label, value: row.value, boxWidth, labelWidth, fonts: opts.fonts });
-  }
+  leftY -= 4;
+  leftY = drawInfoLines(page, opts.fonts, { x: opts.x, y: leftY, width: colWidth, lines: opts.leftLines });
 
   const rightX = opts.x + colWidth + gap;
   let rightY = drawMiniHeading(page, opts.fonts, { x: rightX, y: opts.y, text: opts.rightHeading });
-  for (const row of opts.rightRows) {
-    rightY = drawFieldRow(page, { x: rightX, y: rightY, label: row.label, value: row.value, boxWidth, labelWidth, fonts: opts.fonts });
-  }
+  rightY -= 4;
+  rightY = drawInfoLines(page, opts.fonts, { x: rightX, y: rightY, width: colWidth, lines: opts.rightLines });
 
   return Math.min(leftY, rightY);
 }

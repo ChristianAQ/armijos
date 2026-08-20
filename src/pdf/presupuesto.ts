@@ -2,7 +2,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
 import {
   drawHeader,
-  drawTwoColumnFields,
+  drawTwoColumnInfo,
   drawTable,
   drawTotals,
   drawPaymentMethod,
@@ -28,7 +28,7 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   };
   const logoImage = await embedLogo(pdfDoc);
 
-  let y = drawHeader(page, fonts, logoImage, ["PRESUPUESTO"]);
+  let y = drawHeader(page, fonts, logoImage, ["PRESUPUESTO"], { compact: true });
   const contentWidth = PAGE.width - PAGE.margin * 2;
   y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });
 
@@ -37,21 +37,21 @@ export async function buildPresupuestoPdf(data: PresupuestoData): Promise<Uint8A
   page.drawText(fechaLabel, { x: PAGE.width - PAGE.margin - fw, y, size: 11, font: fonts.bold, color: COLORS.black });
   y -= 26;
 
-  y = drawTwoColumnFields(page, {
+  y = drawTwoColumnInfo(page, {
     x: PAGE.margin,
     y,
     width: contentWidth,
     leftHeading: "DATOS DE LA EMPRESA",
-    leftRows: [
-      { label: "Empresa:", value: BUSINESS.name },
-      { label: "DNI :", value: BUSINESS.dni },
-      { label: "Dirección:", value: BUSINESS.addressLines.join(" ").replace(/,$/, "") },
+    leftLines: [
+      { text: `${BUSINESS.owner} · DNI ${BUSINESS.dni}`, bold: true, color: COLORS.black, size: 10.5 },
+      { text: `${BUSINESS.phone} · ${BUSINESS.email}`, bold: true, color: COLORS.navy },
+      { text: BUSINESS.addressLines.join(" ").replace(/,$/, ""), color: COLORS.gray },
     ],
     rightHeading: "DATOS DEL CLIENTE",
-    rightRows: [
-      { label: "Cliente:", value: data.clientSnapshot.name },
-      { label: "C.I.F :", value: data.clientSnapshot.cif },
-      { label: "Dirección:", value: data.clientSnapshot.address },
+    rightLines: [
+      { text: data.clientSnapshot.name, bold: true, color: COLORS.black, size: 10.5 },
+      { text: `C.I.F ${data.clientSnapshot.cif}`, color: COLORS.gray },
+      { text: data.clientSnapshot.address, color: COLORS.gray },
     ],
     fonts,
   });
