@@ -17,7 +17,8 @@ const REASON_CHIPS = [
   "limpieza con máquina Karcher",
   "poda de árboles y arbustos",
   "riego y mantenimiento de zonas verdes",
-  "fumigación",
+  "colocación/mantenimiento de mobiliario y elementos de jardinería",
+  "desbroce de vegetación",
 ];
 
 export function NewAviso() {
@@ -66,7 +67,7 @@ export function NewAviso() {
               value={zone}
               onChange={(e) => setZone(e.target.value)}
               placeholder="la cancha de tenis"
-              hint='Escríbelo con el artículo, ej. "la piscina", "el gimnasio"'
+              hint='Escríbelo con el artículo, ej. "la piscina", "el gimnasio", "la plaza"'
             />
             <datalist id="zones-datalist">
               {previousZones.map((z) => (
