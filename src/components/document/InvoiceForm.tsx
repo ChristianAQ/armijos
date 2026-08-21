@@ -7,6 +7,7 @@ import { Toggle } from "../ui/Toggle";
 import { Button } from "../ui/Button";
 import { ClientPicker } from "./ClientPicker";
 import { ItemsTable } from "./ItemsTable";
+import { DesignPicker } from "./DesignPicker";
 import { useClients } from "../../hooks/useClients";
 import { useToast } from "../../context/ToastContext";
 import { upsertClient } from "../../services/clients.service";
@@ -18,7 +19,7 @@ import { computeTotals } from "../../lib/totals";
 import { formatEUR } from "../../pdf/layout";
 import { todayIso } from "../../lib/format";
 import { friendlyError } from "../../lib/errors";
-import type { FacturaData, LineItem, PaymentMethod, PresupuestoData } from "../../types";
+import type { FacturaData, LineItem, PaymentMethod, PdfDesign, PresupuestoData } from "../../types";
 
 interface Props {
   type: "factura" | "presupuesto";
@@ -60,6 +61,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
 
   const [number, setNumber] = useState(suggestedNumber ?? "");
   const [date, setDate] = useState(todayIso());
+  const [design, setDesign] = useState<PdfDesign>("clasico");
   const [client, setClient] = useState({ name: "", cif: "", address: "" });
   const [workDescription, setWorkDescription] = useState("");
   const [items, setItems] = useState<LineItem[]>([{ description: "", unitPrice: 0, quantity: 1 }]);
@@ -90,6 +92,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
 
       const base = {
         date,
+        design,
         clientId,
         clientSnapshot: client,
         items,
@@ -134,6 +137,7 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
       }
       await createTemplate({
         name: templateName.trim() || client.name.trim() || "Factura recurrente sin nombre",
+        design,
         clientId,
         clientSnapshot: client,
         items,
@@ -155,6 +159,8 @@ export function InvoiceForm({ type, suggestedNumber, defaultBankAccount }: Props
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {type === "factura" && <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} />}
       <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+
+      <DesignPicker value={design} onChange={setDesign} />
 
       <ClientPicker clients={clients} value={client} onChange={setClient} />
 

@@ -1,11 +1,12 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import type { FacturaTemplate, LineItem, PaymentMethod } from "../types";
+import type { FacturaTemplate, LineItem, PaymentMethod, PdfDesign } from "../types";
 
 const templatesCol = collection(db, "facturaTemplates");
 
 export interface TemplateInput {
   name: string;
+  design: PdfDesign;
   clientId: string | null;
   clientSnapshot: { name: string; cif: string; address: string };
   items: LineItem[];
@@ -21,6 +22,7 @@ export async function listTemplates(): Promise<FacturaTemplate[]> {
     return {
       id: d.id,
       name: data.name,
+      design: (data.design as PdfDesign | undefined) ?? "clasico",
       clientId: data.clientId,
       clientSnapshot: data.clientSnapshot,
       items: data.items,

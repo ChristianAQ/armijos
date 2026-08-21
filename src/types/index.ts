@@ -15,9 +15,23 @@ export interface LineItem {
   quantity: number;
 }
 
+/** Datos fijos del emisor, editables en Ajustes (un único sitio) en vez de
+ * estar repartidos por el código. `address` puede llevar un salto de línea
+ * para partirla en dos líneas al imprimirla. */
 export interface BusinessSettings {
+  name: string;
+  owner: string;
+  dni: string;
+  phone: string;
+  email: string;
+  address: string;
+  termsText: string;
   bankAccount: string;
 }
+
+/** "clasico": diseño original con cuña verde y cajas con borde.
+ * "moderno": diseño más minimalista, sin cuña, con bloques de fondo suave. */
+export type PdfDesign = "clasico" | "moderno";
 
 export type DocumentType = "factura" | "presupuesto" | "aviso";
 
@@ -25,6 +39,7 @@ export interface FacturaData {
   type: "factura";
   number: string;
   date: string; // YYYY-MM-DD
+  design: PdfDesign;
   clientId: string | null;
   clientSnapshot: { name: string; cif: string; address: string };
   items: LineItem[];
@@ -36,6 +51,7 @@ export interface FacturaData {
 export interface FacturaTemplate {
   id: string;
   name: string;
+  design: PdfDesign;
   clientId: string | null;
   clientSnapshot: { name: string; cif: string; address: string };
   items: LineItem[];
@@ -49,6 +65,7 @@ export interface FacturaTemplate {
 export interface PresupuestoData {
   type: "presupuesto";
   date: string;
+  design: PdfDesign;
   clientId: string | null;
   clientSnapshot: { name: string; cif: string; address: string };
   workDescription: string;

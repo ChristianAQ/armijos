@@ -6,6 +6,7 @@ import { PageContainer } from "../components/layout/PageContainer";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import { DesignPicker } from "../components/document/DesignPicker";
 import { useToast } from "../context/ToastContext";
 import { listTemplates } from "../services/templates.service";
 import { saveDocument, getLastFacturaNumber } from "../services/documents.service";
@@ -15,7 +16,7 @@ import { computeTotals } from "../lib/totals";
 import { lastBusinessDayOfMonth } from "../lib/format";
 import { suggestNextNumber } from "../lib/nextNumber";
 import { friendlyError } from "../lib/errors";
-import type { FacturaData, FacturaTemplate } from "../types";
+import type { FacturaData, FacturaTemplate, PdfDesign } from "../types";
 
 const PAYMENT_LABELS: Record<string, string> = {
   efectivo: "Efectivo",
@@ -34,6 +35,7 @@ export function GenerateFactura() {
   const [loading, setLoading] = useState(!template);
   const [number, setNumber] = useState("");
   const [date, setDate] = useState(lastBusinessDayOfMonth());
+  const [design, setDesign] = useState<PdfDesign>(template?.design ?? "clasico");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -43,7 +45,9 @@ export function GenerateFactura() {
   useEffect(() => {
     if (template || !id) return;
     listTemplates().then((all) => {
-      setTemplate(all.find((t) => t.id === id));
+      const found = all.find((t) => t.id === id);
+      setTemplate(found);
+      if (found) setDesign(found.design);
       setLoading(false);
     });
   }, [id, template]);
@@ -57,6 +61,7 @@ export function GenerateFactura() {
         type: "factura",
         number: number.trim(),
         date,
+        design,
         clientId: template.clientId,
         clientSnapshot: template.clientSnapshot,
         items: template.items,
@@ -100,6 +105,7 @@ export function GenerateFactura() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input label="Nº factura" value={number} onChange={(e) => setNumber(e.target.value)} />
             <Input label="Fecha" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <DesignPicker value={design} onChange={setDesign} />
 
             <Card className="flex flex-col gap-3 text-sm">
               <div>

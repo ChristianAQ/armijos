@@ -1,6 +1,6 @@
 import type { Color, PDFFont, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
-import { BUSINESS } from "../config/business";
+import type { BusinessSettings } from "../types";
 
 export interface Fonts {
   regular: PDFFont;
@@ -57,6 +57,7 @@ export function drawHeader(
   page: PDFPage,
   fonts: Fonts,
   logoImage: PDFImage,
+  business: BusinessSettings,
   labelLines: string[] = [],
   opts: { compact?: boolean } = {}
 ): number {
@@ -103,10 +104,10 @@ export function drawHeader(
   // solo con el logo, del alto justo para él.
   if (!opts.compact) {
     let y = top - topMargin - HEADER_LOGO_SIZE - 10;
-    page.drawText(BUSINESS.name, { x: PAGE.margin, y, size: 10, font: fonts.bold, color: COLORS.black });
+    page.drawText(business.name, { x: PAGE.margin, y, size: 10, font: fonts.bold, color: COLORS.black });
     y -= 15;
 
-    page.drawText(`${BUSINESS.owner} · DNI ${BUSINESS.dni}`, {
+    page.drawText(`${business.owner} · DNI ${business.dni}`, {
       x: PAGE.margin,
       y,
       size: 9.5,
@@ -115,7 +116,7 @@ export function drawHeader(
     });
     y -= 15;
 
-    page.drawText(`${BUSINESS.phone} · ${BUSINESS.email}`, {
+    page.drawText(`${business.phone} · ${business.email}`, {
       x: PAGE.margin,
       y,
       size: 9.5,
@@ -124,7 +125,7 @@ export function drawHeader(
     });
     y -= 15;
 
-    page.drawText(BUSINESS.addressLines.join(" ").replace(/,$/, ""), {
+    page.drawText(business.address.replace(/\n/g, " ").replace(/,$/, ""), {
       x: PAGE.margin,
       y,
       size: 9.5,
@@ -375,7 +376,7 @@ export function drawTotals(
   return y;
 }
 
-const PAYMENT_LABELS: Record<string, string> = {
+export const PAYMENT_LABELS: Record<string, string> = {
   efectivo: "Efectivo",
   cheque: "Cheque",
   tarjeta: "Otro",

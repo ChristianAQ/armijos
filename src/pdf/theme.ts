@@ -12,6 +12,8 @@ export const COLORS = {
   gray: rgb(0.45, 0.45, 0.45),
   borderGray: rgb(0.75, 0.75, 0.75),
   lightGray: rgb(0.96, 0.967, 0.963), // relleno sutil de cajas y filas alternas
+  amber: rgb(0.71, 0.4, 0.11), // #b56619 — "Fecha de emisión" y detalles en el diseño moderno
+  paleGreen: rgb(0.93, 0.955, 0.94), // fondo suave de los bloques EMISOR/CLIENTE en el diseño moderno
 };
 
 export const PAGE = {

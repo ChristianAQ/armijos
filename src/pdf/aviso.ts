@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PAGE, COLORS } from "./theme";
 import { drawHeader, drawSectionBar, drawContentBox, drawDivider, formatDateEs } from "./layout";
 import { embedLogo } from "./logo";
+import { getBusinessSettings } from "../services/settings.service";
 import type { AvisoData } from "../types";
 
 function buildBodyText(data: AvisoData): string {
@@ -25,8 +26,9 @@ export async function buildAvisoPdf(data: AvisoData): Promise<Uint8Array> {
     bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
   };
   const logoImage = await embedLogo(pdfDoc);
+  const business = await getBusinessSettings();
 
-  let y = drawHeader(page, fonts, logoImage, []);
+  let y = drawHeader(page, fonts, logoImage, business, []);
   const contentWidth = PAGE.width - PAGE.margin * 2;
 
   y = drawDivider(page, { x: PAGE.margin, y, width: contentWidth });

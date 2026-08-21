@@ -8,12 +8,13 @@ import { Toggle } from "../components/ui/Toggle";
 import { Button } from "../components/ui/Button";
 import { ClientPicker } from "../components/document/ClientPicker";
 import { ItemsTable } from "../components/document/ItemsTable";
+import { DesignPicker } from "../components/document/DesignPicker";
 import { useClients } from "../hooks/useClients";
 import { useToast } from "../context/ToastContext";
 import { upsertClient } from "../services/clients.service";
 import { listTemplates, updateTemplate } from "../services/templates.service";
 import { friendlyError } from "../lib/errors";
-import type { FacturaTemplate, LineItem, PaymentMethod } from "../types";
+import type { FacturaTemplate, LineItem, PaymentMethod, PdfDesign } from "../types";
 
 export function EditTemplate() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,7 @@ export function EditTemplate() {
   const [loading, setLoading] = useState(!template);
 
   const [name, setName] = useState(template?.name ?? "");
+  const [design, setDesign] = useState<PdfDesign>(template?.design ?? "clasico");
   const [client, setClient] = useState(template?.clientSnapshot ?? { name: "", cif: "", address: "" });
   const [items, setItems] = useState<LineItem[]>(template?.items ?? [{ description: "", unitPrice: 0, quantity: 1 }]);
   const [applyIva, setApplyIva] = useState(template?.applyIva ?? true);
@@ -40,6 +42,7 @@ export function EditTemplate() {
       setTemplate(found);
       if (found) {
         setName(found.name);
+        setDesign(found.design);
         setClient(found.clientSnapshot);
         setItems(found.items);
         setApplyIva(found.applyIva);
@@ -64,6 +67,7 @@ export function EditTemplate() {
       }
       await updateTemplate(id, {
         name: name.trim() || client.name.trim() || "Factura recurrente sin nombre",
+        design,
         clientId,
         clientSnapshot: client,
         items,
@@ -89,6 +93,8 @@ export function EditTemplate() {
         {!loading && template && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input label="Nombre de la factura recurrente" value={name} onChange={(e) => setName(e.target.value)} />
+
+            <DesignPicker value={design} onChange={setDesign} />
 
             <ClientPicker clients={clients} value={client} onChange={setClient} />
 
