@@ -181,9 +181,9 @@ function buildFacturaModerno(page: PDFPage, fonts: Fonts, logoImage: PDFImage, b
   y -= 6;
 
   const { base, iva, total } = computeTotals(data.items, data.applyIva);
-  const totalsWidth = 220;
+  const totalsWidth = 260;
   y = drawModernoTotals(page, fonts, {
-    x: PAGE.width - PAGE.margin - totalsWidth,
+    x: PAGE.margin,
     y,
     width: totalsWidth,
     base,

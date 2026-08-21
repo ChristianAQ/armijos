@@ -117,11 +117,12 @@ export function drawModernoInfoBoxes(page: PDFPage, opts: ModernoInfoBoxesOption
   return opts.y - boxHeight - 24;
 }
 
-const CELL_PAD = 4;
+const CELL_PAD = 10;
 
-/** Tabla de líneas del diseño moderno: sin barra de color ni bordes de
- * cuadrícula, solo una línea bajo la cabecera y separadores finos entre
- * filas. El importe se resalta en azul. Devuelve la Y final. */
+/** Tabla de líneas del diseño moderno: cabecera en un contenedor verde muy
+ * claro (misma identidad que los bloques de datos), sin bordes de
+ * cuadrícula en las filas, solo separadores finos entre ellas. El importe
+ * se resalta en azul. Devuelve la Y final. */
 export function drawModernoTable(
   page: PDFPage,
   fonts: Fonts,
@@ -130,21 +131,24 @@ export function drawModernoTable(
   const { x, columns, rows } = opts;
   let y = opts.y;
   const headerSize = 9;
+  const headerPadV = 9;
   const cellSize = 10;
   const lineHeight = 13;
   const rowGap = 10;
   const totalWidth = columns.reduce((s, c) => s + c.width, 0);
 
+  const headerHeight = headerSize + headerPadV * 2;
+  page.drawRectangle({ x, y: y - headerHeight, width: totalWidth, height: headerHeight, color: COLORS.paleGreen });
   let cx = x;
   for (const col of columns) {
     const tw = fonts.bold.widthOfTextAtSize(col.label, headerSize);
     const tx = col.align === "right" ? cx + col.width - tw - CELL_PAD : cx + CELL_PAD;
-    page.drawText(col.label, { x: tx, y: y - headerSize, size: headerSize, font: fonts.bold, color: COLORS.gray });
+    page.drawText(col.label, { x: tx, y: y - headerPadV - headerSize + 1, size: headerSize, font: fonts.bold, color: COLORS.darkGreen });
     cx += col.width;
   }
-  y -= headerSize + 9;
+  y -= headerHeight;
   page.drawLine({ start: { x, y }, end: { x: x + totalWidth, y }, thickness: 1, color: COLORS.darkGreen });
-  y -= 14;
+  y -= 16;
 
   rows.forEach((row, rowIndex) => {
     const cellLines = columns.map((col, i) => wrapText(fonts.regular, cellSize, row[i] ?? "", col.width - CELL_PAD * 2));
@@ -183,6 +187,9 @@ export function drawModernoTotals(
 ): number {
   const { x, width } = opts;
   let y = opts.y;
+  page.drawLine({ start: { x, y }, end: { x: x + width, y }, thickness: 1, color: COLORS.borderGray });
+  y -= 20;
+
   const rows: [string, string][] = [
     ["Base imponible", formatEUR(opts.base)],
     [opts.ivaLabel, formatEUR(opts.iva)],
@@ -194,15 +201,17 @@ export function drawModernoTotals(
     page.drawText(value, { x: x + width - tw, y, size, font: fonts.bold, color: COLORS.black });
     y -= size + 13;
   }
-  page.drawLine({ start: { x, y: y + 6 }, end: { x: x + width, y: y + 6 }, thickness: 1, color: COLORS.borderGray });
-  y -= 6;
+  y -= 10;
 
-  const totalSize = 17;
-  page.drawText("TOTAL", { x, y, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
+  const totalSize = 15;
+  const totalRowHeight = 36;
+  page.drawRectangle({ x, y: y - totalRowHeight, width, height: totalRowHeight, color: COLORS.paleGreen });
+  const ty = y - totalRowHeight / 2 - totalSize / 2 + 1;
+  page.drawText("TOTAL", { x: x + 12, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
   const totalValue = formatEUR(opts.total);
   const tvw = fonts.bold.widthOfTextAtSize(totalValue, totalSize);
-  page.drawText(totalValue, { x: x + width - tvw, y, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
-  return y - 22;
+  page.drawText(totalValue, { x: x + width - tvw - 12, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
+  return y - totalRowHeight - 16;
 }
 
 /** "FORMA DE PAGO" del diseño moderno: mismo contenido que el diseño
