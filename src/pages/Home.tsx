@@ -58,14 +58,14 @@ export function Home() {
         <div className="flex flex-col gap-3">
           <Link
             to={FEATURED_ACTION.to}
-            className="flex items-center gap-4 rounded-2xl bg-brand-dark p-4 shadow-md active:scale-[0.98]"
+            className="flex items-center gap-4 rounded-2xl border-2 border-brand/40 bg-brand/10 p-4 active:scale-[0.98]"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white">
               <FEATURED_ACTION.icon size={22} />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-base font-semibold text-white">{FEATURED_ACTION.label}</span>
-              <p className="text-sm text-white/70">Solo cambia el número y la fecha</p>
+              <span className="text-base font-semibold text-brand-dark">{FEATURED_ACTION.label}</span>
+              <p className="text-sm text-neutral-600">Solo cambia el número y la fecha</p>
             </div>
           </Link>
 
