@@ -1,11 +1,11 @@
 import { addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db, withRecovery } from "../lib/firebase";
 import type { Client } from "../types";
 
 const clientsCol = collection(db, "clients");
 
 export async function listClients(): Promise<Client[]> {
-  const snap = await getDocs(query(clientsCol, orderBy("name")));
+  const snap = await withRecovery(() => getDocs(query(clientsCol, orderBy("name"))));
   return snap.docs.map((d) => {
     const data = d.data();
     return {

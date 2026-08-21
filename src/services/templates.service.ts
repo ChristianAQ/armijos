@@ -1,5 +1,5 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db, withRecovery } from "../lib/firebase";
 import type { FacturaTemplate, LineItem, PaymentMethod, PdfDesign } from "../types";
 
 const templatesCol = collection(db, "facturaTemplates");
@@ -16,7 +16,7 @@ export interface TemplateInput {
 }
 
 export async function listTemplates(): Promise<FacturaTemplate[]> {
-  const snap = await getDocs(query(templatesCol, orderBy("name")));
+  const snap = await withRecovery(() => getDocs(query(templatesCol, orderBy("name"))));
   return snap.docs.map((d) => {
     const data = d.data();
     return {
