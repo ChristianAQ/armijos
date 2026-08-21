@@ -2,7 +2,11 @@ import type { Color, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
 import { wrapText, formatEUR, PAYMENT_LABELS, type Fonts, type TableColumn } from "./layout";
 
-const LOGO_SIZE = 70;
+const LOGO_SIZE = 77;
+// Separador fino entre filas (tabla y totales comparten el mismo estilo,
+// algo más marcado que un simple hairline, para que la lectura por filas
+// sea clara sin caer en una cuadrícula pesada).
+const ROW_SEPARATOR = { thickness: 1, color: COLORS.borderGray };
 
 /** Cabecera del diseño "moderno": sin cuña de color, logo a la izquierda y
  * título/fecha alineados a la derecha, con el margen superior igual al
@@ -36,7 +40,7 @@ export function drawModernoHeader(
   ty -= dateSize;
 
   const bottomEdge = Math.min(logoTop - LOGO_SIZE, ty);
-  return bottomEdge - 24;
+  return bottomEdge - 10;
 }
 
 /** Línea fina de separación bajo la cabecera. */
@@ -134,7 +138,7 @@ export function drawModernoTable(
   const headerPadV = 9;
   const cellSize = 10;
   const lineHeight = 13;
-  const rowGap = 10;
+  const rowGap = 16;
   const totalWidth = columns.reduce((s, c) => s + c.width, 0);
 
   const headerHeight = headerSize + headerPadV * 2;
@@ -158,18 +162,17 @@ export function drawModernoTable(
     for (let i = 0; i < columns.length; i++) {
       const col = columns[i];
       let ly = y - cellSize + 1;
-      const color = i === columns.length - 1 ? COLORS.navy : COLORS.black;
       for (const line of cellLines[i]) {
         const tw = fonts.regular.widthOfTextAtSize(line, cellSize);
         const tx = col.align === "right" ? cx + col.width - tw - CELL_PAD : cx + CELL_PAD;
-        page.drawText(line, { x: tx, y: ly, size: cellSize, font: fonts.regular, color });
+        page.drawText(line, { x: tx, y: ly, size: cellSize, font: fonts.regular, color: COLORS.black });
         ly -= lineHeight;
       }
       cx += col.width;
     }
     y -= rowHeight + rowGap / 2;
     if (rowIndex < rows.length - 1) {
-      page.drawLine({ start: { x, y }, end: { x: x + totalWidth, y }, thickness: 0.75, color: COLORS.lightGray });
+      page.drawLine({ start: { x, y }, end: { x: x + totalWidth, y }, ...ROW_SEPARATOR });
     }
     y -= rowGap / 2;
   });
@@ -196,13 +199,17 @@ export function drawModernoTotals(
     ["Base imponible", formatEUR(opts.base)],
     [opts.ivaLabel, formatEUR(opts.iva)],
   ];
-  for (const [label, value] of rows) {
+  rows.forEach(([label, value], i) => {
     const size = 10;
     page.drawText(label, { x, y, size, font: fonts.regular, color: COLORS.gray });
     const tw = fonts.bold.widthOfTextAtSize(value, size);
     page.drawText(value, { x: x + width - tw - CELL_PAD, y, size, font: fonts.bold, color: COLORS.black });
-    y -= size + 13;
-  }
+    y -= size + 10;
+    if (i < rows.length - 1) {
+      page.drawLine({ start: { x, y }, end: { x: x + width, y }, ...ROW_SEPARATOR });
+      y -= 10;
+    }
+  });
   y -= 10;
 
   const totalSize = 15;

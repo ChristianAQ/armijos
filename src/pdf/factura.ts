@@ -63,6 +63,7 @@ function buildFacturaClasico(page: PDFPage, fonts: Fonts, logoImage: PDFImage, b
     width: contentWidth,
     leftHeading: "DATOS DE LA EMPRESA",
     leftLines: [
+      { text: business.name, color: COLORS.black },
       { text: `${business.owner} · DNI ${business.dni}`, color: COLORS.black },
       { text: `${business.phone} · ${business.email}`, color: COLORS.gray },
       { text: business.address.replace(/\n/g, " ").replace(/,$/, ""), color: COLORS.gray },
