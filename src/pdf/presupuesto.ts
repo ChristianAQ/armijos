@@ -212,11 +212,10 @@ function buildPresupuestoModerno(page: PDFPage, fonts: Fonts, logoImage: PDFImag
   y -= 6;
 
   const { base, iva, total } = computeTotals(data.items, data.applyIva);
-  const totalsWidth = 260;
   y = drawModernoTotals(page, fonts, {
     x: PAGE.margin,
     y,
-    width: totalsWidth,
+    width: contentWidth,
     base,
     ivaLabel: "IVA 21 %",
     iva,

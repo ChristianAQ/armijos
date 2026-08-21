@@ -2,7 +2,7 @@ import type { Color, PDFImage, PDFPage } from "pdf-lib";
 import { COLORS, PAGE } from "./theme";
 import { wrapText, formatEUR, PAYMENT_LABELS, type Fonts, type TableColumn } from "./layout";
 
-const LOGO_SIZE = 64;
+const LOGO_SIZE = 70;
 
 /** Cabecera del diseño "moderno": sin cuña de color, logo a la izquierda y
  * título/fecha alineados a la derecha, con el margen superior igual al
@@ -179,7 +179,9 @@ export function drawModernoTable(
 
 /** Totales del diseño moderno: filas simples etiqueta/valor sin caja, con
  * una línea fina antes del TOTAL, que se destaca en verde oscuro y mayor
- * tamaño. Devuelve la Y final. */
+ * tamaño. Los importes quedan alineados en el mismo borde derecho que la
+ * columna IMPORTE de la tabla (mismo `width` y el mismo margen interior
+ * `CELL_PAD`). Devuelve la Y final. */
 export function drawModernoTotals(
   page: PDFPage,
   fonts: Fonts,
@@ -198,7 +200,7 @@ export function drawModernoTotals(
     const size = 10;
     page.drawText(label, { x, y, size, font: fonts.regular, color: COLORS.gray });
     const tw = fonts.bold.widthOfTextAtSize(value, size);
-    page.drawText(value, { x: x + width - tw, y, size, font: fonts.bold, color: COLORS.black });
+    page.drawText(value, { x: x + width - tw - CELL_PAD, y, size, font: fonts.bold, color: COLORS.black });
     y -= size + 13;
   }
   y -= 10;
@@ -207,10 +209,10 @@ export function drawModernoTotals(
   const totalRowHeight = 36;
   page.drawRectangle({ x, y: y - totalRowHeight, width, height: totalRowHeight, color: COLORS.paleGreen });
   const ty = y - totalRowHeight / 2 - totalSize / 2 + 1;
-  page.drawText("TOTAL", { x: x + 12, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
+  page.drawText("TOTAL", { x: x + CELL_PAD, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
   const totalValue = formatEUR(opts.total);
   const tvw = fonts.bold.widthOfTextAtSize(totalValue, totalSize);
-  page.drawText(totalValue, { x: x + width - tvw - 12, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
+  page.drawText(totalValue, { x: x + width - tvw - CELL_PAD, y: ty, size: totalSize, font: fonts.bold, color: COLORS.darkGreen });
   return y - totalRowHeight - 16;
 }
 
