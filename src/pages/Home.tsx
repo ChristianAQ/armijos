@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, ClipboardList, TriangleAlert, Files, History, Settings, LogOut } from "lucide-react";
+import { FileText, ClipboardList, TriangleAlert, Files, History, Settings, LogOut, RefreshCw } from "lucide-react";
 import { logOut } from "../services/auth.service";
 import { PageContainer } from "../components/layout/PageContainer";
+import { getBusinessSettings } from "../services/settings.service";
+import { DEFAULT_BUSINESS } from "../config/business";
 import logoLockup from "../assets/logo-lockup.png";
 
 const FEATURED_ACTION = { to: "/plantillas", label: "Facturas de clientes recurrentes", icon: Files };
@@ -13,21 +16,43 @@ const ACTIONS = [
 ];
 
 export function Home() {
+  const [businessName, setBusinessName] = useState(DEFAULT_BUSINESS.name);
+
+  useEffect(() => {
+    let active = true;
+    getBusinessSettings().then((settings) => {
+      if (active) setBusinessName(settings.name);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <PageContainer>
         <div className="mb-6 flex items-center justify-between pt-2">
           <div>
-            <img src={logoLockup} alt="Armijos" className="h-16 w-auto" />
-            <p className="mt-1 text-sm text-neutral-500">Jardinería y mantenimiento</p>
+            <img src={logoLockup} alt="Armijos" className="h-20 w-auto" />
+            <p className="mt-1 text-sm text-neutral-500">{businessName}</p>
           </div>
-          <button
-            onClick={() => logOut()}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100"
-            aria-label="Cerrar sesión"
-          >
-            <LogOut size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => window.location.reload()}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100"
+              aria-label="Actualizar"
+              title="Actualizar si algo no carga"
+            >
+              <RefreshCw size={19} />
+            </button>
+            <button
+              onClick={() => logOut()}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100"
+              aria-label="Cerrar sesión"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
