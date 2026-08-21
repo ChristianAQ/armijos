@@ -27,20 +27,16 @@ button {
   font-family: inherit;
 }
 
-/* En móvil, el widget interno de los inputs date/time (los campos de
-   día/mes/año u hora/minutos que dibuja el propio sistema) puede
-   renderizarse más ancho que la caja del input sin que `width` en el
-   input lo evite, empujando su borde derecho más allá del de los demás
-   campos del formulario. Fijar el ancho de esa pieza interna a la del
-   input la mantiene alineada con el resto. */
+/* En móvil (sobre todo iOS), el control nativo de los inputs date/time se
+   pinta a veces más ancho que la propia caja del input sin que eso cuente
+   como desbordamiento de layout (por eso `max-width` solo no basta): el
+   input ocupa el 100% del campo pero su contenido se dibuja por fuera,
+   saliéndose de la pantalla. `overflow: hidden` en el propio input recorta
+   ese dibujado al tamaño real de la caja, igual que los demás campos. */
 input[type="date"],
 input[type="time"] {
   box-sizing: border-box;
-  max-width: 100%;
-}
-
-input[type="date"]::-webkit-datetime-edit,
-input[type="time"]::-webkit-datetime-edit {
+  width: 100%;
   max-width: 100%;
   overflow: hidden;
 }
